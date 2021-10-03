@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-from .costfunctions import ConstantCostFunction
+from costfunctions import ConstantCostFunction
 
 
 def computeBipartiteCostMatrix(G1, G2, cf=ConstantCostFunction(1, 3, 1, 3)):
@@ -11,16 +11,16 @@ def computeBipartiteCostMatrix(G1, G2, cf=ConstantCostFunction(1, 3, 1, 3)):
     C = np.ones([nm, nm])*np.inf
     C[n:, m:] = 0
 
-    for u in G1.nodes():
-        for v in G2.nodes():
+    for i, u in enumerate(G1.nodes()):
+        for j, v in enumerate(G2.nodes()):
             cost = cf.cns(u, v, G1, G2)
-            C[u, v] = cost
+            C[i, j] = cost
 
-    for v in G1.nodes():
-        C[v, m + v] = cf.cnd(v, G1)
+    for i, v in enumerate(G1.nodes()):
+        C[i, m + i] = cf.cnd(v, G1)
 
-    for v in G2.nodes():
-        C[n + v, v] = cf.cni(v, G2)
+    for i, v in enumerate(G2.nodes()):
+        C[n + i, i] = cf.cni(v, G2)
     return C
 
 
@@ -29,5 +29,6 @@ def getOptimalMapping(C, lsap_solver=linear_sum_assignment):
     inclure les progs C de Seb
 
     """
+    print(C)
     row_ind, col_ind = lsap_solver(C)
     return col_ind, row_ind[np.argsort(col_ind)]

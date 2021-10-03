@@ -1,7 +1,36 @@
-from .costfunctions import ConstantCostFunction, RiesenCostFunction
-from .costfunctions import NeighboorhoodCostFunction
-from .bipartiteGED import computeBipartiteCostMatrix, getOptimalMapping
+from costfunctions import ConstantCostFunction, RiesenCostFunction
+from costfunctions import NeighboorhoodCostFunction
+from bipartiteGED import computeBipartiteCostMatrix, getOptimalMapping
 from scipy.optimize import linear_sum_assignment
+
+
+def convert_mapping(rho, varrho, G1, G2):
+    """
+    Convert a mapping from nodes index (int) to a mapping between
+    nodes id (real node identifier in networkx)
+    returns: two dicts
+
+    """
+    rho_dict = {}
+    varrho_dict = {}
+    nodes_list_G1 = list(G1.nodes())
+    nodes_list_G2 = list(G2.nodes())
+
+    n = G1.number_of_nodes()
+    m = G2.number_of_nodes()
+
+    for i, rho_i in enumerate(rho[:n]):
+        if (rho_i >= m):
+            rho_dict[nodes_list_G1[i]] = None
+        else:
+            rho_dict[nodes_list_G1[i]] = nodes_list_G2[rho_i]
+
+    for j, varrho_j in enumerate(varrho[:m]):
+        if (varrho_j >= n):
+            varrho_dict[nodes_list_G2[j]] = None
+        else:
+            varrho_dict[nodes_list_G2[j]] = nodes_list_G1[varrho_j]
+    return rho_dict, varrho_dict
 
 
 def ged(G1, G2, method='Riesen', rho=None, varrho=None,
@@ -13,8 +42,6 @@ def ged(G1, G2, method='Riesen', rho=None, varrho=None,
     Graph's node must be indexed by a index starting at 0 which is
     used in rho and varrho
 
-    TODO : rho and varrho should be encoded as a dict, but how to
-    manage the comparaison of phi_i and m
 
     """
 
@@ -28,29 +55,32 @@ def ged(G1, G2, method='Riesen', rho=None, varrho=None,
         else:
             raise NameError('Non existent method ')
 
-        rho, varrho = getOptimalMapping(
+        r, v = getOptimalMapping(
             computeBipartiteCostMatrix(G1, G2, cf_bp), lsap_solver=solver)
+        rho, varrho = convert_mapping(r, v, G1, G2)
 
-    n = G1.number_of_nodes()
-    m = G2.number_of_nodes()
+    # rho : V1 -> V2
+    # varrho : V2 -> V1
+
     ged = 0
-    for i in G1.nodes():
-        phi_i = rho[i]
-        if(phi_i >= m):
-            ged += cf.cnd(i, G1)
+    for v in G1.nodes():
+        phi_i = rho[v]
+        if(phi_i is None):
+            ged += cf.cnd(v, G1)
         else:
-            ged += cf.cns(i, phi_i, G1, G2)
-    for j in G2.nodes():
-        phi_j = varrho[j]
-        if(phi_j >= n):
-            ged += cf.cni(j, G2)
+            ged += cf.cns(v, phi_i, G1, G2)
+    for u in G2.nodes():
+        phi_j = varrho[u]
+        if(phi_j is None):
+            ged += cf.cni(u, G2)
 
     for e in G1.edges():
         i = e[0]
         j = e[1]
         phi_i = rho[i]
         phi_j = rho[j]
-        if (phi_i < m) and (phi_j < m):
+        if (phi_i is not None) and (phi_j is not None):
+            # il est possible que l'arete existe dans G2
             mappedEdge = len(list(filter(lambda x: True if
                                          x == phi_j else False, G2[phi_i])))
             if(mappedEdge):
@@ -67,7 +97,7 @@ def ged(G1, G2, method='Riesen', rho=None, varrho=None,
         j = e[1]
         phi_i = varrho[i]
         phi_j = varrho[j]
-        if (phi_i < n) and (phi_j < n):
+        if (phi_i is not None) and (phi_j is not None):
             mappedEdge = len(list(filter(lambda x: True if x == phi_j
                                          else False, G1[phi_i])))
             if(not mappedEdge):

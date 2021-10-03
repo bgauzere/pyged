@@ -25,15 +25,15 @@ class ConstantCostFunction:
         self.ces_ = ces
         self.cei_ = self.ced_ = cei
 
-    def cns(self, node_u, node_v, g1, g2):
+    def cns(self, node_u, node_v, g1, g2, label_to_compare="atom"):
         """ return substitution edit operation cost between
         node_u of G1 and node_v of G2"""
-        have_same_label = True
-        for label in g1.nodes[node_u].keys():   # should have same labels
-            have_same_label &= (g1.nodes[node_u][label] !=
-                                g2.nodes[node_v][label])
-
-        return have_same_label*self.cns_
+        label_u = g1.nodes[node_u].get(label_to_compare, None)
+        label_v = g2.nodes[node_v].get(label_to_compare, None)
+        if (label_u == label_v):
+            return 0
+        else:
+            return self.cns_
 
     def cnd(self, u, G1):
         return self.cnd_
