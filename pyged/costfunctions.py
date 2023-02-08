@@ -1,6 +1,9 @@
+import sys
+from typing import Protocol, Any
+
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-import sys
+import networkx as nx
 
 """
    Classes encoding cost functions
@@ -16,20 +19,128 @@ A cost function class must provide elementary costs for elementary edit operatio
 """
 
 
+class CostFunction(Protocol):
+    def cns(self, node_u, node_v, g1: nx.Graph, g2: nx.Graph) -> float:
+        """Returns the substitution cost between node_u and node_v in g1 and g2 resp.
+
+        Parameters
+        ----------
+        node_u : index of node u in g1
+            index of node u in g1
+        node_v : 
+            index of node v in g2
+        g1 : networkx.Graph
+            Graph containing u
+        g2 : networkx.Graph
+            Graph containing v
+
+        Returns
+        ---------
+        a positive float value
+        """
+        ...
+
+    def cnd(self, node_u: Any, g1: nx.Graph) -> float:
+        """Returns the deletion cost of node_u in g1.
+
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        g1 : networkx.Graph
+            Graph containing u
+
+        Returns
+        ---------
+        a positive float value
+        """
+        ...
+
+    def cni(self, node_u: Any, g1: nx.Graph) -> float:
+        """Returns the insertion cost of node_u in g1.
+
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        g1 : networkx.Graph
+            Graph containing u
+
+        Returns
+        ---------
+        a positive float value
+        """
+        ...
+
+    def ces(self, e1: tuple[Any, Any], e2: tuple[Any, Any],
+            g1: nx.Graph, g2: nx.Graph) -> float:
+        """Returns the substitution cost between edge e1 and edge e2 in g1 and g2 resp.
+
+        Parameters
+        ----------
+        e1 : tuple[Any,Any]
+            edge in g1
+        e2 : tuple[Any,Any] : 
+            edge in g2
+        g1 : networkx.Graph
+            Graph containing u
+        g2 : networkx.Graph
+            Graph containing v
+
+        Returns
+        ---------
+        a positive float value
+        """
+        ...
+
+    def ced(self, e1: tuple[Any, Any], g1: nx.Graph) -> float:
+        """Returns the deletion cost of edge e1 in g1.
+
+        Parameters
+        ----------
+        e1 : tuple[Any,Any]
+            edge to delete in G1
+        g1 : networkx.Graph
+            Graph containing e1
+
+        Returns
+        ---------
+        a positive float value
+        """
+        ...
+
+    def cei(self, e1: tuple[Any, Any], g1: nx.Graph) -> float:
+        """Returns the insertion cost of edge e1 in g1.
+
+        Parameters
+        ----------
+        e1 : tuple[Any,Any]
+            edge to insert in G1
+        g1 : networkx.Graph
+            Graph containing e1
+
+        Returns
+        ---------
+        a positive float value
+        """
+        ...
+
+
 class ConstantCostFunction:
     """ Define a symmetric constant cost fonction for edit operations """
 
-    def __init__(self, cns, cni, ces, cei):
+    def __init__(self, cns, cni, ces, cei, label_to_compare="atom"):
         self.cns_ = cns
         self.cni_ = self.cnd_ = cni
         self.ces_ = ces
         self.cei_ = self.ced_ = cei
+        self.label_to_compare = label_to_compare
 
-    def cns(self, node_u, node_v, g1, g2, label_to_compare="atom"):
+    def cns(self, node_u, node_v, g1, g2):
         """ return substitution edit operation cost between
         node_u of G1 and node_v of G2"""
-        label_u = g1.nodes[node_u].get(label_to_compare, None)
-        label_v = g2.nodes[node_v].get(label_to_compare, None)
+        label_u = g1.nodes[node_u].get(self.label_to_compare, None)
+        label_v = g2.nodes[node_v].get(self.label_to_compare, None)
         if (label_u == label_v):
             return 0
         else:
@@ -62,7 +173,8 @@ class ConstantCostFunction:
 class RiesenCostFunction():
     """ Cost function associated to the computation of a cost matrix between nodes for LSAP"""
 
-    def __init__(self, cf, lsap_solver=linear_sum_assignment):
+    def __init__(self, cf: CostFunction,
+                 lsap_solver=linear_sum_assignment):
         self.cf_ = cf
         self.lsap_solver_ = lsap_solver
 
@@ -114,7 +226,7 @@ class RiesenCostFunction():
 class NeighboorhoodCostFunction():
     """ Cost function associated to the computation of a cost matrix between nodes for LSAP"""
 
-    def __init__(self, cf, lsap_solver=linear_sum_assignment):
+    def __init__(self, cf: CostFunction, lsap_solver=linear_sum_assignment):
         self.cf_ = cf
         self.lsap_solver_ = lsap_solver
 

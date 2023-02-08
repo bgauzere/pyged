@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-from costfunctions import ConstantCostFunction
+from pyged.costfunctions import ConstantCostFunction
 
 
 def computeBipartiteCostMatrix(G1, G2, cf=ConstantCostFunction(1, 3, 1, 3)):
