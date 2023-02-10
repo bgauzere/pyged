@@ -2,6 +2,7 @@ from scipy.optimize import linear_sum_assignment
 import networkx as nx
 from pyged.costfunctions import CostFunction
 from pyged.bipartiteGED import computeBipartiteCostMatrix, getOptimalMapping
+from pyged.solvers import Solver, SolverLSAP
 #
 # Notes
 # -TODO
@@ -9,7 +10,7 @@ from pyged.bipartiteGED import computeBipartiteCostMatrix, getOptimalMapping
 
 
 class GED():
-    def __init__(self, cf: CostFunction, solver=linear_sum_assignment):
+    def __init__(self, cf: CostFunction, solver: Solver = None):
         """
         Parameters
         ------------
@@ -21,6 +22,8 @@ class GED():
         """
 
         self.cf = cf
+        if solver is None:
+            solver = SolverLSAP()
         self.solver = solver
 
 # if (method == 'Riesen'):
@@ -44,10 +47,10 @@ class GED():
 
 
         """
-
+        # TODO : à sortir
         if ((rho is None) or (varrho is None)):
-            r, v = getOptimalMapping(
-                computeBipartiteCostMatrix(G1, G2, self.cf), lsap_solver=self.solver)
+            C = computeBipartiteCostMatrix(G1, G2, self.cf)
+            r, v = getOptimalMapping(C, lsap_solver=self.solver)
             rho, varrho = convert_mapping(r, v, G1, G2)
 
         # rho : V1 -> V2
@@ -104,6 +107,10 @@ def convert_mapping(rho, varrho, G1, G2):
     nodes id (real node identifier in networkx)
     returns: two dicts
 
+    Parameters
+    --------------
+    rho : rho[i] = phi(i), i \in G1
+    varrho : varrho[j] = phi^-1(j), j \in G2
     """
     rho_dict = {}
     varrho_dict = {}

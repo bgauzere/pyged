@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 from pyged.costfunctions import ConstantCostFunction
+from pyged.solvers import Solver, SolverLSAP
 
 
 def computeBipartiteCostMatrix(G1, G2, cf=ConstantCostFunction(1, 3, 1, 3)):
@@ -24,11 +25,10 @@ def computeBipartiteCostMatrix(G1, G2, cf=ConstantCostFunction(1, 3, 1, 3)):
     return C
 
 
-def getOptimalMapping(C, lsap_solver=linear_sum_assignment):
+def getOptimalMapping(C, lsap_solver: Solver = SolverLSAP):
     """Compute an optimal linear mapping according to cost Matrix C
     inclure les progs C de Seb
 
     """
-    print(C)
-    row_ind, col_ind = lsap_solver(C)
-    return col_ind, row_ind[np.argsort(col_ind)]
+    rho, varrho = lsap_solver.solve(C)
+    return rho, varrho
