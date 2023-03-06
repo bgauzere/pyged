@@ -127,7 +127,12 @@ class CostFunction(Protocol):
 
 
 class ConstantCostFunction:
-    """ Define a symmetric constant cost fonction for edit operations """
+    """Define a symmetric constant cost fonction for edit operations
+
+    TODO : transformer label_to_compare en fonction de test d'égalité des labels
+    de noeuds et d'aretes. Avec une valeur par défaut sur un label particulier
+
+    """
 
     def __init__(self, cns, cni, ces, cei, label_to_compare="atom"):
         self.cns_ = cns

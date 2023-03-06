@@ -5,6 +5,7 @@ import numpy as np
 import librariesImport
 import gedlibpy
 from sinkdiff.sinkdiff import sinkhorn_d1d2
+from sinkdiff.sink_utils import cost_to_sim
 
 
 class Solver(Protocol):
@@ -75,11 +76,12 @@ class SolverSinkhorn():
         self.eps = eps
 
     def solve(self, C):
-        # TODO : gerer la conversion cost to sim dans sinkdiff
         C_lsape = convert_matrix_to_LSAPE(C)
-        S = -torch.from_numpy(C_lsape).float()
+        S = cost_to_sim(torch.from_numpy(C_lsape).float())
         X, _ = sinkhorn_d1d2(S, self.nb_iter, self.eps)
-        results = gedlibpy.hungarian_LSAPE(-X)
+
+        # on inverse pour binariser la matrice
+        results = gedlibpy.hungarian_LSAPE(X.max()-X)
         rho = np.array([int(i) for i in results[0]])
         varrho = np.array([int(i) for i in results[1]])
         return rho, varrho

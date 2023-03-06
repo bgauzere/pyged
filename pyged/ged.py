@@ -55,7 +55,7 @@ class GED():
 
         # rho : V1 -> V2
         # varrho : V2 -> V1
-
+        # print(f"{rho =}")
         ged = 0
         for v in G1.nodes():
             phi_i = rho[v]
@@ -131,4 +131,5 @@ def convert_mapping(rho, varrho, G1, G2):
             varrho_dict[nodes_list_G2[j]] = None
         else:
             varrho_dict[nodes_list_G2[j]] = nodes_list_G1[varrho_j]
+
     return rho_dict, varrho_dict
