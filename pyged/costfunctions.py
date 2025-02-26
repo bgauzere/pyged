@@ -192,7 +192,7 @@ class ConstantCostFunction:
         self.compare_edges = edge_comp if edge_comp is not None\
             else (lambda e1, e2, g1, g2: self.ces_)
 
-    def cns(self, node_u, node_v, g1, g2):
+    def cns(self, node_u: Any, node_v: Any, g1: nx.Graph, g2: nx.Graph) -> float:
         """Returns the substitution cost between `node_u` and `node_v` in `g1` and `g2` resp.
 
         Parameters
@@ -212,7 +212,7 @@ class ConstantCostFunction:
         """
         return 0 if self.compare_nodes(node_u, node_v, g1, g2) else self.cns_
 
-    def cnd(self, u, g1):
+    def cnd(self, u: Any, g1: nx.Graph) -> float:
         """Returns the deletion cost of `node_u` in `g1`.
 
         Parameters
@@ -228,7 +228,7 @@ class ConstantCostFunction:
         """
         return self.cnd_
 
-    def cni(self, v, g2):
+    def cni(self, v: Any, g2: nx.Graph):
         """Returns the insertion cost of `node_u` in `g1`.
 
         Parameters
@@ -244,7 +244,7 @@ class ConstantCostFunction:
         """
         return self.cni_
 
-    def ces(self, e1, e2, g1, g2):
+    def ces(self, e1: Tuple[Any, Any], e2: Tuple[Any, Any], g1: nx.graph, g2: nx.Graph) -> float:
         """Returns the substitution cost between edge `e1` and edge `e2` in `g1` and `g2` resp.
 
         Parameters
@@ -264,7 +264,7 @@ class ConstantCostFunction:
         """
         return 0 if self.compare_edges(e1, e2, g1, g2) else self.ces_
 
-    def ced(self, e1, g1):
+    def ced(self, e1: Tuple[Any, Any], g1: nx.Graph) -> float:
         """Returns the deletion cost of edge `e1` in `g1`.
 
         Parameters
@@ -280,7 +280,7 @@ class ConstantCostFunction:
         """
         return self.ced_
 
-    def cei(self, e2, g2):
+    def cei(self, e2: Tuple[Any, Any], g2: nx.Graph) -> float:
         """Returns the insertion cost of edge `e2` in `g2`.
 
         Parameters
