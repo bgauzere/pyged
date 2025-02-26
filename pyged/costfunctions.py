@@ -1,12 +1,5 @@
-import sys
-from typing import Protocol, Any
-
-import numpy as np
-from scipy.optimize import linear_sum_assignment
-import networkx as nx
-
 """
-   Classes encoding cost functions
+Classes encoding cost functions
 
 A cost function class must provide elementary costs for elementary edit operations. Namely:
 - cns : node substitution cost
@@ -18,16 +11,28 @@ A cost function class must provide elementary costs for elementary edit operatio
 - cei : edge insertion cost
 """
 
+import sys
+from typing import Protocol, Any, Callable, Optional, Tuple
+
+import numpy as np
+from scipy.optimize import linear_sum_assignment
+import networkx as nx
+
 
 class CostFunction(Protocol):
-    def cns(self, node_u, node_v, g1: nx.Graph, g2: nx.Graph) -> float:
-        """Returns the substitution cost between node_u and node_v in g1 and g2 resp.
+    """`CostFuncion` protocol
+    
+    Designs the methods for classes defining cost functions
+    """
+
+    def cns(self, node_u: Any, node_v: Any, g1: nx.Graph, g2: nx.Graph) -> float:
+        """Returns the substitution cost between `node_u` and `node_v` in `g1` and `g2` resp.
 
         Parameters
         ----------
-        node_u : index of node u in g1
+        node_u : Any
             index of node u in g1
-        node_v : 
+        node_v : Any
             index of node v in g2
         g1 : networkx.Graph
             Graph containing u
@@ -35,13 +40,13 @@ class CostFunction(Protocol):
             Graph containing v
 
         Returns
-        ---------
-        a positive float value
+        -------
+        A positive float value
         """
         ...
 
     def cnd(self, node_u: Any, g1: nx.Graph) -> float:
-        """Returns the deletion cost of node_u in g1.
+        """Returns the deletion cost of `node_u` in `g1`.
 
         Parameters
         ----------
@@ -51,13 +56,13 @@ class CostFunction(Protocol):
             Graph containing u
 
         Returns
-        ---------
-        a positive float value
+        -------
+        A positive float value
         """
         ...
 
     def cni(self, node_u: Any, g1: nx.Graph) -> float:
-        """Returns the insertion cost of node_u in g1.
+        """Returns the insertion cost of `node_u` in `g1`.
 
         Parameters
         ----------
@@ -67,20 +72,20 @@ class CostFunction(Protocol):
             Graph containing u
 
         Returns
-        ---------
-        a positive float value
+        -------
+        A positive float value
         """
         ...
 
-    def ces(self, e1: tuple[Any, Any], e2: tuple[Any, Any],
+    def ces(self, e1: Tuple[Any, Any], e2: Tuple[Any, Any],
             g1: nx.Graph, g2: nx.Graph) -> float:
-        """Returns the substitution cost between edge e1 and edge e2 in g1 and g2 resp.
+        """Returns the substitution cost between edge `e1` and edge `e2` in `g1` and `g2` resp.
 
         Parameters
         ----------
-        e1 : tuple[Any,Any]
+        e1 : Tuple[Any, Any]
             edge in g1
-        e2 : tuple[Any,Any] : 
+        e2 : Tuple[Any, Any] : 
             edge in g2
         g1 : networkx.Graph
             Graph containing u
@@ -88,40 +93,40 @@ class CostFunction(Protocol):
             Graph containing v
 
         Returns
-        ---------
-        a positive float value
+        -------
+        A positive float value
         """
         ...
 
-    def ced(self, e1: tuple[Any, Any], g1: nx.Graph) -> float:
-        """Returns the deletion cost of edge e1 in g1.
+    def ced(self, e1: Tuple[Any, Any], g1: nx.Graph) -> float:
+        """Returns the deletion cost of edge `e1` in `g1`.
 
         Parameters
         ----------
-        e1 : tuple[Any,Any]
-            edge to delete in G1
+        e1 : Tuple[Any, Any]
+            edge to delete in g1
         g1 : networkx.Graph
             Graph containing e1
 
         Returns
-        ---------
-        a positive float value
+        -------
+        A positive float value
         """
         ...
 
-    def cei(self, e1: tuple[Any, Any], g1: nx.Graph) -> float:
-        """Returns the insertion cost of edge e1 in g1.
+    def cei(self, e1: Tuple[Any, Any], g1: nx.Graph) -> float:
+        """Returns the insertion cost of edge `e1` in `g1`.
 
         Parameters
         ----------
-        e1 : tuple[Any,Any]
-            edge to insert in G1
+        e1 : Tuple[Any, Any]
+            edge to insert in g1
         g1 : networkx.Graph
             Graph containing e1
 
         Returns
-        ---------
-        a positive float value
+        -------
+        A positive float value
         """
         ...
 
