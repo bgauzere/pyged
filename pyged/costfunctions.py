@@ -85,12 +85,12 @@ class CostFunction(Protocol):
         ----------
         e1 : Tuple[Any, Any]
             edge in g1
-        e2 : Tuple[Any, Any] : 
+        e2 : Tuple[Any, Any]
             edge in g2
         g1 : networkx.Graph
-            Graph containing u
+            Graph containing e1
         g2 : networkx.Graph
-            Graph containing v
+            Graph containing e2
 
         Returns
         -------
@@ -114,15 +114,15 @@ class CostFunction(Protocol):
         """
         ...
 
-    def cei(self, e1: Tuple[Any, Any], g1: nx.Graph) -> float:
-        """Returns the insertion cost of edge `e1` in `g1`.
+    def cei(self, e2: Tuple[Any, Any], g2: nx.Graph) -> float:
+        """Returns the insertion cost of edge `e2` in `g2`.
 
         Parameters
         ----------
-        e1 : Tuple[Any, Any]
-            edge to insert in g1
-        g1 : networkx.Graph
-            Graph containing e1
+        e2 : Tuple[Any, Any]
+            edge to insert in g2
+        g2 : networkx.Graph
+            Graph containing e2
 
         Returns
         -------
@@ -132,51 +132,168 @@ class CostFunction(Protocol):
 
 
 class ConstantCostFunction:
-    """Define a symmetric constant cost fonction for edit operations
+    """Define a symmetric constant cost fonction for edit operations"""
 
-    TODO : transformer label_to_compare en fonction de test d'égalité des labels
-    de noeuds et d'aretes. Avec une valeur par défaut sur un label particulier
+    def __init__(
+            self,
+            cns: int|float,
+            cni: int|float,
+            ces: int|float,
+            cei: int|float,
+            node_comp: Optional[
+                Callable[[Any, Any, nx.Graph, nx.Graph], bool]
+            ] = None,
+            edge_comp: Optional[
+                Callable[[Tuple[Any, Any], Tuple[Any, Any], nx.Graph, nx.Graph], bool]
+            ] = None
+        ):
+        """Creates a constant cost for edit operations
 
-    """
+        Parameters
+        ----------
+        cns : int|float
+            Node substitution cost
+        cni : int|float
+            Node insertion & deletion cost
+        ces : int|float
+            Edge substitution cost
+        cei : int|float
+            Edge insertion & deletion cost
+        node_comp : Callable(Any, Any, nx.Graph, nx.Graph) -> bool
+            Boolean function for node comparison. The function will be called this way :
 
-    def __init__(self, cns, cni, ces, cei, label_to_compare="atom"):
+                node_comp(u, v, g1, g2)
+
+            with `u` and `v`, nodes from resp. `g1` and `g2`
+
+            Shoud return `True` if nodes `u` and `v` are the same
+
+        edge_comp : Callable(Tuple[Any, Any], Tuple[Any, Any], nx.Graph, nx.Graph) -> bool
+            Boolean function for edge comparison. The function will be called this way :
+
+                edge_comp(e1, e2, g1, g2)
+
+            with `e1` and `e2`, edges from resp. `g1` and `g2`
+
+            Should return `True` if edges `e1` and `e2` are the same
+
+        Notes
+        -----
+        * An edge is a `Tuple` of 2 nodes (`Any`)
+        * `node_comp` and `edge_comp` should return `True` whether the nodes/edges are the same
+        * These function will make substitution cost at 0 if it's the case
+        """
         self.cns_ = cns
         self.cni_ = self.cnd_ = cni
         self.ces_ = ces
         self.cei_ = self.ced_ = cei
-        self.label_to_compare = label_to_compare
+        self.compare_nodes = node_comp if node_comp is not None\
+            else (lambda u, v, g1, g2: self.cns_)
+        self.compare_edges = edge_comp if edge_comp is not None\
+            else (lambda e1, e2, g1, g2: self.ces_)
 
     def cns(self, node_u, node_v, g1, g2):
-        """ return substitution edit operation cost between
-        node_u of G1 and node_v of G2"""
-        label_u = g1.nodes[node_u].get(self.label_to_compare, None)
-        label_v = g2.nodes[node_v].get(self.label_to_compare, None)
-        if (label_u == label_v):
-            return 0
-        else:
-            return self.cns_
+        """Returns the substitution cost between `node_u` and `node_v` in `g1` and `g2` resp.
 
-    def cnd(self, u, G1):
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        node_v : Any
+            index of node v in g2
+        g1 : networkx.Graph
+            Graph containing u
+        g2 : networkx.Graph
+            Graph containing v
+
+        Returns
+        -------
+        A positive float value
+        """
+        return 0 if self.compare_nodes(node_u, node_v, g1, g2) else self.cns_
+
+    def cnd(self, u, g1):
+        """Returns the deletion cost of `node_u` in `g1`.
+
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        g1 : networkx.Graph
+            Graph containing u
+
+        Returns
+        -------
+        A positive float value
+        """
         return self.cnd_
 
-    def cni(self, v, G2):
+    def cni(self, v, g2):
+        """Returns the insertion cost of `node_u` in `g1`.
+
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        g1 : networkx.Graph
+            Graph containing u
+
+        Returns
+        -------
+        A positive float value
+        """
         return self.cni_
 
-    def ces(self, e1, e2, G1, G2):
-        """
-        An edge is a 2-tuple : [ firstnode, secondnode]
-        """
-        have_same_label = True
-        for label in G1[e1[0]][e1[1]].keys():   # should have same labels
-            have_same_label &= (G1[e1[0]][e1[1]][label] !=
-                                G2[e2[0]][e2[1]][label])
+    def ces(self, e1, e2, g1, g2):
+        """Returns the substitution cost between edge `e1` and edge `e2` in `g1` and `g2` resp.
 
-        return have_same_label * self.ces_
+        Parameters
+        ----------
+        e1 : Tuple[Any, Any]
+            edge in g1
+        e2 : Tuple[Any, Any]
+            edge in g2
+        g1 : networkx.Graph
+            Graph containing e1
+        g2 : networkx.Graph
+            Graph containing e2
 
-    def ced(self, e1, G1):
+        Returns
+        -------
+        A positive float value
+        """
+        return 0 if self.compare_edges(e1, e2, g1, g2) else self.ces_
+
+    def ced(self, e1, g1):
+        """Returns the deletion cost of edge `e1` in `g1`.
+
+        Parameters
+        ----------
+        e1 : Tuple[Any, Any]
+            edge to delete in g1
+        g1 : networkx.Graph
+            Graph containing e1
+
+        Returns
+        -------
+        A positive float value
+        """
         return self.ced_
 
-    def cei(self, e2, G2):
+    def cei(self, e2, g2):
+        """Returns the insertion cost of edge `e2` in `g2`.
+
+        Parameters
+        ----------
+        e2 : Tuple[Any, Any]
+            edge to insert in g2
+        g2 : networkx.Graph
+            Graph containing e2
+
+        Returns
+        -------
+        A positive float value
+        """
         return self.cei_
 
 
