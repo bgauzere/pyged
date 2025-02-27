@@ -468,6 +468,16 @@ class RiesenCostFunction():
         """
         return self.cf_.cei(e2, g2)
 
+    @property
+    def ccf(self) -> CostFunction:
+        """Accesses the associated `CostFuncion`
+        
+        Returns
+        -------
+        The basic cost function
+        """
+        return self.cf_
+
 class NeighborhoodCostFunction():
     """Cost function associated to the computation of a cost matrix between nodes for LSAP
     
@@ -641,3 +651,13 @@ class NeighborhoodCostFunction():
         a positive float value
         """
         return self.cf_.cei(e2, g2)
+
+    @property
+    def ccf(self) -> CostFunction:
+        """Accesses the associated `CostFuncion`
+        
+        Returns
+        -------
+        The basic cost function
+        """
+        return self.cf_
