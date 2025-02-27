@@ -2,6 +2,7 @@
 Functions for solving the LSAP
 """
 
+from typing import Tuple
 import numpy as np
 import networkx as nx
 from pyged.costfunctions import CostFunction, ConstantCostFunction
@@ -45,10 +46,24 @@ def computeBipartiteCostMatrix(
     return C
 
 
-def getOptimalMapping(C, lsap_solver: Solver = SolverLSAP):
+def getOptimalMapping(
+        C: np.ndarray,
+        lsap_solver: Solver = SolverLSAP
+    ) -> Tuple[np.ndarray, np.ndarray]:
     """Compute an optimal linear mapping according to cost Matrix C
-    inclure les progs C de Seb
 
+    Parameters
+    ----------
+    C : np.ndarray
+        The cost matrix for the LSAP
+    lsap_solver : Solver
+        Solves the LSAP given a cost matrix
+
+    Returns
+    -------
+    rho, varrho, `numpy` arrays for columns and lines mapping indices
+
+    TODO inclure les progs C de Seb
     """
     rho, varrho = lsap_solver.solve(C)
     return rho, varrho
