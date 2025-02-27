@@ -468,56 +468,176 @@ class RiesenCostFunction():
         """
         return self.cf_.cei(e2, g2)
 
-class NeighboorhoodCostFunction():
-    """Cost function associated to the computation of a cost matrix between nodes for LSAP"""
+class NeighborhoodCostFunction():
+    """Cost function associated to the computation of a cost matrix between nodes for LSAP
+    
+    Includes local structure with adjacent edges and neighbors nodes possibles edition costs
+    """
 
-    def __init__(self, cf: CostFunction, lsap_solver=linear_sum_assignment):
+    def __init__(
+            self,
+            cf: CostFunction,
+            lsap_solver: Callable[
+                [np.ndarray],
+                Tuple[np.ndarray, np.ndarray]
+            ] = linear_sum_assignment
+        ):
+        """Creates a cost depending on the current node, its edges and neighbors
+
+        Parameters
+        ----------
+        cf : CostFunction
+            the costs for operations
+        lsap_solver : Callable(np.ndarray) -> Tuple[np.ndarray, np.ndarray]
+            function to solve the LSAP problem. It will be given a cost matrix and must
+            return the optimum nodes matching as 2 `numpy` arrays of rows and cols indices
+        """
         self.cf_ = cf
         self.lsap_solver_ = lsap_solver
 
-    def cns(self, u, v, G1, G2):
-        """ u et v sont des id de noeuds """
-        n = len(G1[u])
-        m = len(G2[v])
+    def cns(self, u: Any, v: Any, g1: nx.Graph, g2: nx.Graph) -> float:
+        """Returns the substitution cost between `node_u` and `node_v` in `g1` and `g2` resp.
+
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        node_v : Any
+            index of node v in g2
+        g1 : networkx.Graph
+            Graph containing u
+        g2 : networkx.Graph
+            Graph containing v
+
+        Returns
+        -------
+        A positive float value
+        """
+        n = len(g1[u])
+        m = len(g2[v])
         sub_C = np.ones([n+m, n+m]) * sys.maxsize
         sub_C[n:, m:] = 0
         i = 0
-        l_nbr_u = G1[u]
-        l_nbr_v = G2[v]
+        l_nbr_u = g1[u]
+        l_nbr_v = g2[v]
         for nbr_u in l_nbr_u:
             j = 0
             e1 = [u, nbr_u]
-            for nbr_v in G2[v]:
+            for nbr_v in g2[v]:
                 e2 = [v, nbr_v]
-                sub_C[i, j] = self.cf_.ces(e1, e2, G1, G2)
-                sub_C[i, j] += self.cf_.cns(nbr_u, nbr_v, G1, G2)
+                sub_C[i, j] = self.cf_.ces(e1, e2, g1, g2)
+                sub_C[i, j] += self.cf_.cns(nbr_u, nbr_v, g1, g2)
                 j += 1
             i += 1
 
         i = 0
         for nbr_u in l_nbr_u:
-            sub_C[i, m+i] = self.cf_.ced([u, nbr_u], G1)
-            sub_C[i, m+i] += self.cf_.cnd(nbr_u, G1)
+            sub_C[i, m+i] = self.cf_.ced([u, nbr_u], g1)
+            sub_C[i, m+i] += self.cf_.cnd(nbr_u, g1)
             i += 1
 
         j = 0
         for nbr_v in l_nbr_v:
-            sub_C[n+j, j] = self.cf_.cei([v, nbr_v], G2)
-            sub_C[n+j, j] += self.cf_.cni(nbr_v, G2)
+            sub_C[n+j, j] = self.cf_.cei([v, nbr_v], g2)
+            sub_C[n+j, j] += self.cf_.cni(nbr_v, g2)
             j += 1
 
         row_ind, col_ind = self.lsap_solver_(sub_C)
         cost = np.sum(sub_C[row_ind, col_ind])
-        return self.cf_.cns(u, v, G1, G2) + cost
+        return self.cf_.cns(u, v, g1, g2) + cost
 
-    def cnd(self, u, G1):
-        cost = 0
-        for nbr in G1[u]:
-            cost += self.cf_.ced([u, nbr], G1)
-        return self.cf_.cnd(u, G1) + cost
+    def cnd(self, u: Any, g1: nx.Graph) -> float:
+        """Returns the deletion cost of `node_u` in `g1`.
 
-    def cni(self, v, G2):
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        g1 : networkx.Graph
+            Graph containing u
+
+        Returns
+        -------
+        A positive float value
+        """
         cost = 0
-        for nbr in G2[v]:
-            cost += self.cf_.cei([v, nbr, G2], G2)
-        return self.cf_.cni(v, G2) + cost
+        for nbr in g1[u]:
+            cost += self.cf_.ced([u, nbr], g1)
+        return self.cf_.cnd(u, g1) + cost
+
+    def cni(self, v: Any, g2: nx.Graph) -> float:
+        """Returns the insertion cost of `node_u` in `g1`.
+
+        Parameters
+        ----------
+        node_u : Any
+            index of node u in g1
+        g1 : networkx.Graph
+            Graph containing u
+
+        Returns
+        -------
+        A positive float value
+        """
+        cost = 0
+        for nbr in g2[v]:
+            cost += self.cf_.cei([v, nbr, g2], g2)
+        return self.cf_.cni(v, g2) + cost
+
+    def ces(
+            self,
+            e1: Tuple[Any, Any],
+            e2: Tuple[Any, Any],
+            g1: nx.Graph,
+            g2: nx.Graph
+        ) -> float:
+        """Returns the substitution cost between edge `e1` and edge `e2` in `g1` and `g2` resp.
+
+        Parameters
+        ----------
+        e1 : Tuple[Any, Any]
+            edge in `g1`
+        e2 : Tuple[Any, Any]
+            edge in `g2`
+        g1 : networkx.Graph
+            Graph containing `e1`
+        g2 : networkx.Graph
+            Graph containing `e2`
+
+        Returns
+        -------
+        a positive float value
+        """
+        return self.cf_.ces(e1, e2, g1, g2)
+
+    def ced(self, e1: Tuple[Any, Any], g1: nx.graph) -> float:
+        """Returns the deletion cost of edge `e1` in `g1`.
+
+        Parameters
+        ----------
+        e1 : Tuple[Any, Any]
+            edge to delete in `g1`
+        g1 : networkx.Graph
+            Graph containing `e1`
+
+        Returns
+        -------
+        a positive float value
+        """
+        return self.cf_.ced(e1, g1)
+
+    def cei(self, e2: Tuple[Any, Any], g2: nx.graph) -> float:
+        """Returns the insertion cost of edge `e2 in `g2`.
+
+        Parameters
+        ----------
+        e1 : Tuple[Any, Any]
+            edge to insert in `g1`
+        g1 : networkx.Graph
+            Graph containing `e1`
+
+        Returns
+        -------
+        a positive float value
+        """
+        return self.cf_.cei(e2, g2)
