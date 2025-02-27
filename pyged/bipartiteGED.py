@@ -3,12 +3,29 @@ Functions for solving the LSAP
 """
 
 import numpy as np
-from pyged.costfunctions import ConstantCostFunction
+import networkx as nx
+from pyged.costfunctions import CostFunction, ConstantCostFunction
 from pyged.solvers import Solver, SolverLSAP
 
 
-def computeBipartiteCostMatrix(G1, G2, cf=ConstantCostFunction(1, 3, 1, 3)):
-    """Compute a Cost Matrix according to cost function cf"""
+def computeBipartiteCostMatrix(
+        G1: nx.Graph,
+        G2: nx.Graph,
+        cf: CostFunction = ConstantCostFunction(1, 3, 1, 3)
+    ) -> np.ndarray:
+    """Compute a Cost Matrix according to cost function cf
+    
+    Parameters
+    ----------
+    G1, G2 : nx.Graph
+        Graphs between which the GED is calculated
+    cf : CostFunction
+        Cost function to build the cost matrix
+    
+    Returns
+    -------
+    The cost matrix from the given function as a `numpy` array
+    """
     n = G1.number_of_nodes()
     m = G2.number_of_nodes()
     nm = n + m
