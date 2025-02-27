@@ -1,51 +1,72 @@
-from scipy.optimize import linear_sum_assignment
+"""
+Graph Edit Distance module
+
+Defines a class computing GED between 2 graphs
+"""
+
+from typing import Optional, Tuple, Dict, Any, Iterable
+import numpy as np
 import networkx as nx
-from pyged.costfunctions import CostFunction
+from pyged.costfunctions import CostFunction, ConstantCostFunction
 from pyged.bipartiteGED import computeBipartiteCostMatrix, getOptimalMapping
 from pyged.solvers import Solver, SolverLSAP
-#
-# Notes
-# -TODO
-# par défaut :             cf=ConstantCostFunction(1, 3, 1, 3),
 
 
 class GED():
-    def __init__(self, cf: CostFunction, solver: Solver = None):
-        """
+    """Graph Edit Distance class
+    
+    Computes the GED of 2 grahs given a cost fucntion ans a LSAP solver
+    """
+
+    def __init__(
+            self,
+            cf: CostFunction = ConstantCostFunction(1, 3, 1, 3),
+            solver: Solver = SolverLSAP()
+        ):
+        """Creates a Graph Edit Ditance computer
+
         Parameters
-        ------------
-        cf:CostFunction
-
-        solver:
-
-
+        ----------
+        cf: CostFunction
+            Functions defining the cost of edit operations
+            Uses a constant cost function by default of costs
+            * 1 for any substitution between nodes or edges
+            * 3 for any deletion/insertion of nodes or edges
+        solver: Solver
+            Solver for the LSAP
+            By default, a solver using Hungarian Algorithm will be used
         """
-
         self.cf = cf
-        if solver is None:
-            solver = SolverLSAP()
         self.solver = solver
 
-# if (method == 'Riesen'):
-#     cf_bp = RiesenCostFunction(cf, lsap_solver=solver)
-# elif (method == 'Neighboorhood'):
-#     cf_bp = NeighboorhoodCostFunction(cf, lsap_solver=solver)
-# elif (method == 'Basic'):
-#     cf_bp = cf
 
-    def ged(self, G1: nx.Graph, G2: nx.Graph, rho=None, varrho=None):
-        """Compute Graph Edit Distance between G1 and G2 according to mapping
-        encoded within rho and varrho.
+    def ged(
+            self,
+            G1: nx.Graph,
+            G2: nx.Graph,
+            rho: Optional[Dict[Any, Any|None]] = None,
+            varrho: Optional[Dict[Any, Any|None]] = None
+        ) -> Tuple[float, np.ndarray, np.ndarray]:
+        """Compute Graph Edit Distance between `G1` and `G2`
+        according to mapping encoded within rho and varrho.
 
-        Graph's node must be indexed by a index starting at 0 which is
-        used in rho and varrho
+        Graph's node must be indexed by a index starting
+        at 0 which is used in rho and varrho
 
         Parameters
-        ----------------
-
+        ----------
         G1, G2 : networkx graphs
+            Graphs between which the GED is computed
+        rho, varrho : dictionnaries of nodes (Any) to nodes (Any) (Optional)
+            result of the matching between nodes
+            if `None`, they will be computed
 
-
+        Returns
+        -------
+        ged : float
+            the Graph Edit Distance Upper Bound
+        rho, barrho : dictionnaries of nodes (Any) to nodes (Any)
+            result of the matching between nodes
         """
         # TODO : à sortir
         if ((rho is None) or (varrho is None)):
@@ -101,16 +122,28 @@ class GED():
         return ged, rho, varrho
 
 
-def convert_mapping(rho, varrho, G1, G2):
-    """
-    Convert a mapping from nodes index (int) to a mapping between
-    nodes id (real node identifier in networkx)
-    returns: two dicts
+def convert_mapping(
+        rho: Iterable[int],
+        varrho: Iterable[int],
+        G1: nx.Graph,
+        G2: nx.Graph
+    ) -> Tuple[Dict[Any, Any], Dict[Any, Any]]:
+    """Convert a mapping from nodes index (int) to a mapping
+    between nodes id (real node identifier in networkx)
 
     Parameters
-    --------------
-    rho : rho[i] = phi(i), i \in G1
-    varrho : varrho[j] = phi^-1(j), j \in G2
+    ----------
+    rho, varrho : Iterable of ints
+        Lists of indices, results of nodes mapping
+        for each node of index i in G1, rho[i] if the matched node in G2
+        varrho is the reverse list
+    G1, G2 : networkx.Graph
+        Graphs between which we map the nodes
+
+    Returns
+    -------
+    rho, barrho : dictionnaries of nodes (Any) to nodes (Any)
+        converted result of the mapping into dicts
     """
     rho_dict = {}
     varrho_dict = {}
