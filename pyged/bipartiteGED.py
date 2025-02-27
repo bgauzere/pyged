@@ -1,5 +1,8 @@
+"""
+Functions for solving the LSAP
+"""
+
 import numpy as np
-from scipy.optimize import linear_sum_assignment
 from pyged.costfunctions import ConstantCostFunction
 from pyged.solvers import Solver, SolverLSAP
 
