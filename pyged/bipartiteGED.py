@@ -1,5 +1,5 @@
 """
-Functions for solving the LSAP
+Functions for solving the LSAP and creating an optimal node matching
 """
 
 from typing import Tuple
@@ -14,7 +14,7 @@ def computeBipartiteCostMatrix(
         G2: nx.Graph,
         cf: CostFunction = ConstantCostFunction(1, 3, 1, 3)
     ) -> np.ndarray:
-    """Compute a Cost Matrix according to cost function cf
+    """Compute a Cost Matrix according to cost function `cf`
     
     Parameters
     ----------
@@ -25,7 +25,8 @@ def computeBipartiteCostMatrix(
     
     Returns
     -------
-    The cost matrix from the given function as a `numpy` array
+    C: np.ndarray
+        The cost matrix from the given function as a `numpy` array
     """
     n = G1.number_of_nodes()
     m = G2.number_of_nodes()
@@ -48,7 +49,7 @@ def computeBipartiteCostMatrix(
 
 def getOptimalMapping(
         C: np.ndarray,
-        lsap_solver: Solver = SolverLSAP
+        lsap_solver: Solver = SolverLSAP()
     ) -> Tuple[np.ndarray, np.ndarray]:
     """Compute an optimal linear mapping according to cost Matrix C
 
@@ -61,7 +62,8 @@ def getOptimalMapping(
 
     Returns
     -------
-    rho, varrho, `numpy` arrays for columns and lines mapping indices
+    rho, varrho: np.ndarray
+        `numpy` arrays for columns and lines mapping indices
 
     TODO inclure les progs C de Seb
     """
