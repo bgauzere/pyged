@@ -9,7 +9,7 @@ from pyged.costfunctions import CostFunction, ConstantCostFunction
 from pyged.solvers import Solver, SolverLSAP
 
 
-def computeBipartiteCostMatrix(
+def compute_bipartite_cost_matrix(
         G1: nx.Graph,
         G2: nx.Graph,
         cf: CostFunction = ConstantCostFunction(1, 3, 1, 3)
@@ -47,7 +47,7 @@ def computeBipartiteCostMatrix(
     return C
 
 
-def getOptimalMapping(
+def get_optimal_mapping(
         C: np.ndarray,
         lsap_solver: Solver = SolverLSAP()
     ) -> Tuple[np.ndarray, np.ndarray]:

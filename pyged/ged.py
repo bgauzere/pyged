@@ -8,7 +8,7 @@ from typing import Optional, Tuple, Dict, Any, Iterable
 import numpy as np
 import networkx as nx
 from pyged.costfunctions import CostFunction, ConstantCostFunction
-from pyged.bipartiteGED import computeBipartiteCostMatrix, getOptimalMapping
+from pyged.bipartiteGED import compute_bipartite_cost_matrix, get_optimal_mapping
 from pyged.solvers import Solver, SolverLSAP
 
 
@@ -70,8 +70,8 @@ class GED():
         """
         # TODO : à sortir
         if ((rho is None) or (varrho is None)):
-            C = computeBipartiteCostMatrix(G1, G2, self.cf)
-            r, v = getOptimalMapping(C, lsap_solver=self.solver)
+            C = compute_bipartite_cost_matrix(G1, G2, self.cf)
+            r, v = get_optimal_mapping(C, lsap_solver=self.solver)
             rho, varrho = convert_mapping(r, v, G1, G2)
 
         # rho : V1 -> V2
