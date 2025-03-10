@@ -43,3 +43,17 @@ class TestComputeBipartiteCostMatrix:
         ])
         cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, self.ccf)
         assert np.array_equal(cm, true_cm, equal_nan=True)
+
+    def test_riese_cost_function_cost_matrix(self):
+        rcf = cf.RiesenCostFunction(self.ccf)
+        true_cm = np.array([
+            [1, 2, 1, 2, np.inf, np.inf, np.inf],
+            [3, 1, 3, np.inf, 4, np.inf, np.inf],
+            [2, 2, 2, np.inf, np.inf, 3, np.inf],
+            [1, 1, 1, np.inf, np.inf, np.inf, 3],
+            [2, np.inf, np.inf, 0, 0, 0, 0],
+            [np.inf, 3, np.inf, 0, 0, 0, 0],
+            [np.inf, np.inf, 2, 0, 0, 0, 0]
+        ])
+        cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, rcf)
+        assert np.array_equal(cm, true_cm, equal_nan=True)
