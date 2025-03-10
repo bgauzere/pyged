@@ -77,7 +77,7 @@ class GED():
         ged = 0
         for v in G1.nodes():
             phi_i = rho[v]
-            if (phi_i is None):
+            if phi_i is None:
                 ged += self.cf.cnd(v, G1)
             else:
                 ged += self.cf.cns(v, phi_i, G1, G2)
@@ -95,7 +95,7 @@ class GED():
                 # il est possible que l'arete existe dans G2
                 mappedEdge = len(list(filter(lambda x: True if
                                              x == phi_j else False, G2[phi_i])))
-                if (mappedEdge):
+                if mappedEdge:
                     e2 = [phi_i, phi_j]
                     min_cost = min(self.cf.ces(e, e2, G1, G2),
                                    self.cf.ced(e, G1) + self.cf.cei(e2, G2))
@@ -112,7 +112,7 @@ class GED():
             if (phi_i is not None) and (phi_j is not None):
                 mappedEdge = len(list(filter(lambda x: True if x == phi_j
                                              else False, G1[phi_i])))
-                if (not mappedEdge):
+                if not mappedEdge:
                     ged += self.cf.cei(e, G2)
             else:
                 ged += self.cf.ced(e, G2)
