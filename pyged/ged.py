@@ -74,9 +74,6 @@ class GED():
             r, v = get_optimal_mapping(C, lsap_solver=self.solver)
             rho, varrho = convert_mapping(r, v, G1, G2)
 
-        # rho : V1 -> V2
-        # varrho : V2 -> V1
-        # print(f"{rho =}")
         ged = 0
         for v in G1.nodes():
             phi_i = rho[v]
