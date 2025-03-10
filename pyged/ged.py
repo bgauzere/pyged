@@ -74,17 +74,18 @@ class GED():
             r, v = get_optimal_mapping(C, lsap_solver=self.solver)
             rho, varrho = convert_mapping(r, v, G1, G2)
 
+        ccf = self.cf if isinstance(self.cf, ConstantCostFunction) else self.cf.ccf
         ged = 0
         for v in G1.nodes():
             phi_i = rho[v]
             if phi_i is None:
-                ged += self.cf.cnd(v, G1)
+                ged += ccf.cnd(v, G1)
             else:
-                ged += self.cf.cns(v, phi_i, G1, G2)
+                ged += ccf.cns(v, phi_i, G1, G2)
         for u in G2.nodes():
             phi_j = varrho[u]
             if phi_j is None:
-                ged += self.cf.cni(u, G2)
+                ged += ccf.cni(u, G2)
 
         for e in G1.edges():
             i = e[0]
@@ -97,13 +98,13 @@ class GED():
                                              x == phi_j else False, G2[phi_i])))
                 if mappedEdge:
                     e2 = [phi_i, phi_j]
-                    min_cost = min(self.cf.ces(e, e2, G1, G2),
-                                   self.cf.ced(e, G1) + self.cf.cei(e2, G2))
+                    min_cost = min(ccf.ces(e, e2, G1, G2),
+                                   ccf.ced(e, G1) + ccf.cei(e2, G2))
                     ged += min_cost
                 else:
-                    ged += self.cf.ced(e, G1)
+                    ged += ccf.ced(e, G1)
             else:
-                ged += self.cf.ced(e, G1)
+                ged += ccf.ced(e, G1)
         for e in G2.edges():
             i = e[0]
             j = e[1]
@@ -113,7 +114,7 @@ class GED():
                 mappedEdge = len(list(filter(lambda x: True if x == phi_j
                                              else False, G1[phi_i])))
                 if not mappedEdge:
-                    ged += self.cf.cei(e, G2)
+                    ged += ccf.cei(e, G2)
             else:
-                ged += self.cf.ced(e, G2)
+                ged += ccf.ced(e, G2)
         return ged, rho, varrho
