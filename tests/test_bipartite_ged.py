@@ -1,0 +1,45 @@
+"""
+Tests for the `bipartite_ged` module
+"""
+
+import sys
+from unittest.mock import MagicMock
+
+
+for lib in ("torch", "librariesImport", "gedlibpy", "sinkdiff.sinkdiff", "sinkdiff.sink_utils"):
+    sys.modules[lib] = MagicMock()
+
+import pytest
+import networkx as nx
+import pyged.bipartiteGED as bpged
+import pyged.costfunctions as cf
+from tests.test_utils import *
+
+np = pytest.importorskip("numpy")
+
+class TestComputeBipartiteCostMatrix:
+    """Tests cost matrix"""
+
+    def setup_method(self):
+        self.g1, self.g2 = load_test_graphs()
+        self.ccf = cf.ConstantCostFunction(
+            1,
+            1,
+            1,
+            1,
+            comp_nodes,
+            comp_edges
+        )
+
+    def test_constant_cost_function_cost_matrix(self):
+        true_cm = np.array([
+            [1, 1, 1, 1, np.inf, np.inf, np.inf],
+            [1, 0, 1, np.inf, 1, np.inf, np.inf],
+            [1, 1, 1, np.inf, np.inf, 1, np.inf],
+            [0, 1, 0, np.inf, np.inf, np.inf, 1],
+            [1, np.inf, np.inf, 0, 0, 0, 0],
+            [np.inf, 1, np.inf, 0, 0, 0, 0],
+            [np.inf, np.inf, 1, 0, 0, 0, 0]
+        ])
+        cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, self.ccf)
+        assert np.array_equal(cm, true_cm, equal_nan=True)
