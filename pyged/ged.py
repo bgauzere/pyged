@@ -83,7 +83,7 @@ class GED():
                 ged += self.cf.cns(v, phi_i, G1, G2)
         for u in G2.nodes():
             phi_j = varrho[u]
-            if (phi_j is None):
+            if phi_j is None:
                 ged += self.cf.cni(u, G2)
 
         for e in G1.edges():
