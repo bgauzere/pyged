@@ -8,6 +8,7 @@ networkx = "*"
 matplotlib = "*"
 scipy = "*"
 numpy = "*"
+pytest = "*"
 
 [dev-packages]
 
