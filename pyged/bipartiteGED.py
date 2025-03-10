@@ -47,6 +47,12 @@ def compute_bipartite_cost_matrix(
     return C
 
 
+#  _____ ___  ____   ___  
+# |_   _/ _ \|  _ \ / _ \ 
+#   | || | | | | | | | | |
+#   | || |_| | |_| | |_| |
+#   |_| \___/|____/ \___/ 
+# TODO Retirer cette fonction
 def get_optimal_mapping(
         C: np.ndarray,
         lsap_solver: Solver = SolverLSAP()
