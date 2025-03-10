@@ -1,5 +1,14 @@
+"""
+Classes solving a Linear Sum Assigment Problem (LSAP)
+
+Solving a LSAP allows to compute an optimal matching of every pair of elements between two sets $A$ and
+$B$, given a cost matrix $C$ where $C_{i, j}$ is the matching cost between $a_i \in A$ and $b_j \in B$
+
+The solution of the LSAP minimizes the costs of $C$
+"""
+
+from typing import Protocol, Tuple
 import torch
-from typing import Protocol
 from scipy.optimize import linear_sum_assignment
 import numpy as np
 import librariesImport
@@ -9,8 +18,13 @@ from sinkdiff.sink_utils import cost_to_sim
 
 
 class Solver(Protocol):
-    def solve(self, cost_matrix: np.array) -> tuple[np.array, np.array]:
-        """Compute optimal assignment between two sets where matching costs are encoded into cost_matrix
+    """Solver Protocol
+    
+    Designs the optimal matching solver classes
+    """
+
+    def solve(self, cost_matrix: np.array) -> Tuple[np.array, np.array]:
+        """Compute optimal assignment between two sets where matching costs are encoded into `cost_matrix`
 
         Parameters
         ----------
@@ -18,10 +32,10 @@ class Solver(Protocol):
             The n \times m matrix between the two sets
 
         Returns
-        --------
+        -------
         rho, varrho : np.array
-        rho[i] indicates the mapping of i onto second set
-        varrho[j] indicates the mapping of j onto first set (inverse of rho)
+            rho[i] indicates the mapping of i onto second set
+            varrho[j] indicates the mapping of j onto first set (inverse of rho)
         """
         ...
 
@@ -49,12 +63,33 @@ def convert_matrix_to_LSAPE(C: np.array) -> np.array:
 
 
 class SolverLSAP():
+    """LSAP Solver
+    
+    Solves a Linear Sum Assignment Problem between
+    two sets given a matching cost matrix
+    """
     def __init__(self):
         pass
 
-    def solve(self, C):
+    def solve(self, C: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Solves the LSAP
+
+        Parameters
+        ----------
+        C: np.ndarray (2d)
+            The matching cost matrix. $C_{i, j}$ is the
+            matching cost between elements $i$ and $j$
+        
+        Returns
+        -------
+        rho, varrho: np.ndarray
+            Optimal matching
+            `rho[i]` is the matched index from the second set
+            `varrho[i]` is the matched index from the first set
+        """
         row_ind, col_ind = linear_sum_assignment(C)
-        return col_ind, row_ind[np.argsort(col_ind)]
+        return col_ind, row_ind
 
 
 class SolverLSAPE():
@@ -69,9 +104,6 @@ class SolverLSAPE():
 
 class SolverSinkhorn():
     def __init__(self, nb_iter=100, eps=1e-2):
-        """
-
-        """
         self.nb_iter = nb_iter
         self.eps = eps
 
