@@ -74,8 +74,8 @@ def get_optimal_mapping(
 def convert_mapping(
         rho: Iterable[int],
         varrho: Iterable[int],
-        G1: nx.Graph,
-        G2: nx.Graph
+        g1: nx.Graph,
+        g2: nx.Graph
     ) -> Tuple[Dict[Any, Any], Dict[Any, Any]]:
     """Convert a mapping from nodes index (int) to a mapping
     between nodes id (real node identifier in networkx)
@@ -84,34 +84,24 @@ def convert_mapping(
     ----------
     rho, varrho : Iterable of ints
         Lists of indices, results of nodes mapping
-        for each node of index i in G1, rho[i] if the matched node in G2
-        varrho is the reverse list
-    G1, G2 : networkx.Graph
+        for each node of index i in g1, rho[i] if
+        the index of matched node in g2
+        varrho is the reversed list
+    g1_to_g2, g2_to_g1 : networkx.Graph
         Graphs between which we map the nodes
 
     Returns
     -------
-    rho, barrho : dictionnaries of nodes (Any) to nodes (Any)
+    rho, varrho : dictionnaries of nodes (Any) to nodes (Any)
         converted result of the mapping into dicts
     """
-    rho_dict = {}
-    varrho_dict = {}
-    nodes_list_G1 = list(G1.nodes())
-    nodes_list_G2 = list(G2.nodes())
+    assert len(rho) == len(varrho)
+    nodes1, nodes2 = list(g1.nodes()), list(g1.nodes())
+    g1_to_g2, g2_to_g1 = {}, {}
+    for g1_index, g2_index in zip(rho, varrho):
+        if g1_index < len(nodes1):
+            g1_to_g2[nodes1[g1_index]] = nodes2[g2_index] if g2_index < len(nodes2) else None
+        if g2_index < len(nodes2):
+            g2_to_g1[nodes2[g2_index]] = nodes1[g1_index] if g1_index < len(nodes1) else None
+    return g1_to_g2, g2_to_g1
 
-    n = G1.number_of_nodes()
-    m = G2.number_of_nodes()
-
-    for i, rho_i in enumerate(rho[:n]):
-        if (rho_i >= m):
-            rho_dict[nodes_list_G1[i]] = None
-        else:
-            rho_dict[nodes_list_G1[i]] = nodes_list_G2[rho_i]
-
-    for j, varrho_j in enumerate(varrho[:m]):
-        if (varrho_j >= n):
-            varrho_dict[nodes_list_G2[j]] = None
-        else:
-            varrho_dict[nodes_list_G2[j]] = nodes_list_G1[varrho_j]
-
-    return rho_dict, varrho_dict
