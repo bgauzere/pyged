@@ -4,11 +4,11 @@ Graph Edit Distance module
 Defines a class computing GED between 2 graphs
 """
 
-from typing import Optional, Tuple, Dict, Any, Iterable
+from typing import Optional, Tuple, Dict, Any
 import numpy as np
 import networkx as nx
 from pyged.costfunctions import CostFunction, ConstantCostFunction
-from pyged.bipartiteGED import compute_bipartite_cost_matrix, get_optimal_mapping
+from pyged.bipartiteGED import compute_bipartite_cost_matrix, get_optimal_mapping, convert_mapping
 from pyged.solvers import Solver, SolverLSAP
 
 
@@ -120,49 +120,3 @@ class GED():
             else:
                 ged += self.cf.ced(e, G2)
         return ged, rho, varrho
-
-
-def convert_mapping(
-        rho: Iterable[int],
-        varrho: Iterable[int],
-        G1: nx.Graph,
-        G2: nx.Graph
-    ) -> Tuple[Dict[Any, Any], Dict[Any, Any]]:
-    """Convert a mapping from nodes index (int) to a mapping
-    between nodes id (real node identifier in networkx)
-
-    Parameters
-    ----------
-    rho, varrho : Iterable of ints
-        Lists of indices, results of nodes mapping
-        for each node of index i in G1, rho[i] if the matched node in G2
-        varrho is the reverse list
-    G1, G2 : networkx.Graph
-        Graphs between which we map the nodes
-
-    Returns
-    -------
-    rho, barrho : dictionnaries of nodes (Any) to nodes (Any)
-        converted result of the mapping into dicts
-    """
-    rho_dict = {}
-    varrho_dict = {}
-    nodes_list_G1 = list(G1.nodes())
-    nodes_list_G2 = list(G2.nodes())
-
-    n = G1.number_of_nodes()
-    m = G2.number_of_nodes()
-
-    for i, rho_i in enumerate(rho[:n]):
-        if (rho_i >= m):
-            rho_dict[nodes_list_G1[i]] = None
-        else:
-            rho_dict[nodes_list_G1[i]] = nodes_list_G2[rho_i]
-
-    for j, varrho_j in enumerate(varrho[:m]):
-        if (varrho_j >= n):
-            varrho_dict[nodes_list_G2[j]] = None
-        else:
-            varrho_dict[nodes_list_G2[j]] = nodes_list_G1[varrho_j]
-
-    return rho_dict, varrho_dict
