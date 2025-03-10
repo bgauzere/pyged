@@ -96,7 +96,7 @@ def convert_mapping(
         converted result of the mapping into dicts
     """
     assert len(rho) == len(varrho)
-    nodes1, nodes2 = list(g1.nodes()), list(g1.nodes())
+    nodes1, nodes2 = list(g1.nodes()), list(g2.nodes())
     g1_to_g2, g2_to_g1 = {}, {}
     for g1_index, g2_index in zip(rho, varrho):
         if g1_index < len(nodes1):
