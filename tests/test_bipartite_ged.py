@@ -32,42 +32,18 @@ class TestComputeBipartiteCostMatrix:
         )
 
     def test_constant_cost_function_cost_matrix(self):
-        true_cm = np.array([
-            [1, 1, 1, 1, np.inf, np.inf, np.inf],
-            [1, 0, 1, np.inf, 1, np.inf, np.inf],
-            [1, 1, 1, np.inf, np.inf, 1, np.inf],
-            [0, 1, 0, np.inf, np.inf, np.inf, 1],
-            [1, np.inf, np.inf, 0, 0, 0, 0],
-            [np.inf, 1, np.inf, 0, 0, 0, 0],
-            [np.inf, np.inf, 1, 0, 0, 0, 0]
-        ])
+        true_cm = constant_cost_matrix()
         cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, self.ccf)
         assert np.array_equal(cm, true_cm, equal_nan=True)
 
     def test_riesen_cost_function_cost_matrix(self):
         rcf = cf.RiesenCostFunction(self.ccf)
-        true_cm = np.array([
-            [1, 2, 1, 2, np.inf, np.inf, np.inf],
-            [3, 1, 3, np.inf, 4, np.inf, np.inf],
-            [2, 2, 2, np.inf, np.inf, 3, np.inf],
-            [1, 1, 1, np.inf, np.inf, np.inf, 3],
-            [2, np.inf, np.inf, 0, 0, 0, 0],
-            [np.inf, 3, np.inf, 0, 0, 0, 0],
-            [np.inf, np.inf, 2, 0, 0, 0, 0]
-        ])
+        true_cm = riesen_cost_matrix()
         cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, rcf)
         assert np.array_equal(cm, true_cm, equal_nan=True)
 
     def test_neighborhood_cost_function_cost_matrix(self):
         ncf = cf.NeighborhoodCostFunction(self.ccf)
-        true_cm = np.array([
-            [1, 4, 1, 2, np.inf, np.inf, np.inf],
-            [6, 3, 6, np.inf, 4, np.inf, np.inf],
-            [4, 3, 4, np.inf, np.inf, 3, np.inf],
-            [2, 3, 2, np.inf, np.inf, np.inf,3],
-            [2, np.inf, np.inf, 0, 0, 0, 0],
-            [np.inf, 3, np.inf, 0, 0, 0, 0],
-            [np.inf, np.inf, 2, 0, 0, 0, 0]
-        ])
+        true_cm = neighborhood_cost_matrix()
         cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, ncf)
         assert np.array_equal(cm, true_cm, equal_nan=True)
