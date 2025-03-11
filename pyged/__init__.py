@@ -72,6 +72,7 @@ See Also
 scipy.optimize.linear_sum_assignment
 pyged.costfunctions
 pyged.solvers
+networkx.graph_edit_distance
 """
 
 from pyged.costfunctions import *
