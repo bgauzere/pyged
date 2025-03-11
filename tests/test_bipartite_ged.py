@@ -65,3 +65,12 @@ class TestGetOptimalMapping:
         cm = neighborhood_cost_matrix()
         cols_res, rows_res = bpged.get_optimal_mapping(cm)
         assert np.sum(cm[rows_res, cols_res]) == 9
+
+def test_convert_mapping():
+    g1, g2 = load_test_graphs()
+    cols = np.array([0, 1, 2, 3, 4, 5, 6])
+    rows = np.array([0, 1, 5, 2, 3, 4, 6])
+    true_g12 = {"u1": "v1", "u2": "v2", "u3": None, "u4": "v3"}
+    true_g21 = {"v1": "u1", "v2": "u2", "v3": "u4"}
+    g12, g21 = bpged.convert_mapping(cols, rows, g1, g2)
+    assert g12 == true_g12 and g21 == true_g21
