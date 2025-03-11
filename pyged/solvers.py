@@ -8,13 +8,13 @@ The solution of the LSAP minimizes the costs of $C$
 """
 
 from typing import Protocol, Tuple
-import torch
 from scipy.optimize import linear_sum_assignment
 import numpy as np
-import librariesImport
-import gedlibpy
-from sinkdiff.sinkdiff import sinkhorn_d1d2
-from sinkdiff.sink_utils import cost_to_sim
+# import torch
+# import librariesImport
+# import gedlibpy
+# from sinkdiff.sinkdiff import sinkhorn_d1d2
+# from sinkdiff.sink_utils import cost_to_sim
 
 
 class Solver(Protocol):
@@ -92,28 +92,28 @@ class SolverLSAP():
         return row_ind, col_ind
 
 
-class SolverLSAPE():
-    def solve(self, C):
-        C_lsape = convert_matrix_to_LSAPE(C)
-        result = gedlibpy.hungarian_LSAPE(C_lsape)
-        # TODO : traiter le retour de result
-        rho = np.array([int(i) for i in result[0]])
-        varrho = np.array([int(i) for i in result[1]])
-        return rho, varrho
+# class SolverLSAPE():
+#     def solve(self, C):
+#         C_lsape = convert_matrix_to_LSAPE(C)
+#         result = gedlibpy.hungarian_LSAPE(C_lsape)
+#         # TODO : traiter le retour de result
+#         rho = np.array([int(i) for i in result[0]])
+#         varrho = np.array([int(i) for i in result[1]])
+#         return rho, varrho
 
 
-class SolverSinkhorn():
-    def __init__(self, nb_iter=100, eps=1e-2):
-        self.nb_iter = nb_iter
-        self.eps = eps
+# class SolverSinkhorn():
+#     def __init__(self, nb_iter=100, eps=1e-2):
+#         self.nb_iter = nb_iter
+#         self.eps = eps
 
-    def solve(self, C):
-        C_lsape = convert_matrix_to_LSAPE(C)
-        S = cost_to_sim(torch.from_numpy(C_lsape).float())
-        X, _ = sinkhorn_d1d2(S, self.nb_iter, self.eps)
+#     def solve(self, C):
+#         C_lsape = convert_matrix_to_LSAPE(C)
+#         S = cost_to_sim(torch.from_numpy(C_lsape).float())
+#         X, _ = sinkhorn_d1d2(S, self.nb_iter, self.eps)
 
-        # on inverse pour binariser la matrice
-        results = gedlibpy.hungarian_LSAPE(X.max()-X)
-        rho = np.array([int(i) for i in results[0]])
-        varrho = np.array([int(i) for i in results[1]])
-        return rho, varrho
+#         # on inverse pour binariser la matrice
+#         results = gedlibpy.hungarian_LSAPE(X.max()-X)
+#         rho = np.array([int(i) for i in results[0]])
+#         varrho = np.array([int(i) for i in results[1]])
+#         return rho, varrho
