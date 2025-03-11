@@ -60,3 +60,8 @@ class TestGetOptimalMapping:
         cm = riesen_cost_matrix()
         cols_res, rows_res = bpged.get_optimal_mapping(cm)
         assert np.sum(cm[rows_res, cols_res]) == 6
+
+    def test_neighborhood_cost_function_solution(self):
+        cm = neighborhood_cost_matrix()
+        cols_res, rows_res = bpged.get_optimal_mapping(cm)
+        assert np.sum(cm[rows_res, cols_res]) == 9
