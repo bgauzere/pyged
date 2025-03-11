@@ -25,5 +25,5 @@ def test_solver_lsap():
         [np.inf, np.inf, 1, 0, 0, 0, 0]
     ])
     solver = SolverLSAP()
-    cols, rows = solver.solve(C)
+    rows, cols = solver.solve(C)
     assert np.sum(C[rows, cols]) == 2

@@ -89,7 +89,7 @@ class SolverLSAP():
             `varrho[i]` is the matched index from the first set
         """
         row_ind, col_ind = linear_sum_assignment(C)
-        return col_ind, row_ind
+        return row_ind, col_ind
 
 
 class SolverLSAPE():
