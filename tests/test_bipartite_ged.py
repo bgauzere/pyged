@@ -47,3 +47,11 @@ class TestComputeBipartiteCostMatrix:
         true_cm = neighborhood_cost_matrix()
         cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, ncf)
         assert np.array_equal(cm, true_cm, equal_nan=True)
+
+class TestGetOptimalMapping:
+    """Tests for solver output"""
+
+    def test_constant_cost_function_solution(self):
+        cm = constant_cost_matrix()
+        cols_res, rows_res = bpged.get_optimal_mapping(cm)
+        assert np.sum(cm[rows_res, cols_res]) == 2
