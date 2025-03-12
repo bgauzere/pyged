@@ -6,20 +6,9 @@ from test_utils import *
 import pyged.costfunctions as cf
 from pyged.ged import GED
 
-class TestGED:
-    """Tests the GED class"""
-
-    def setup_method(self):
-        self.g1, self.g2 = load_test_graphs()
-        self.ccf = cf.ConstantCostFunction(
-            1,
-            1,
-            1,
-            1,
-            comp_nodes,
-            comp_edges
-        )
-
-    def test_constant_cost_function_ged(self):
-        ged = GED(self.ccf)
-        assert ged.ged(self.g1, self.g2)[0] == 4
+def test_ged():
+    g1, g2 = load_test_graphs()
+    ged = GED(cf.ConstantCostFunction(1, 1, 1, 1, comp_nodes, comp_edges))
+    g12 = {"u1": "v1", "u2": "v2", "u3": None, "u4": "v3"}
+    g21 = {"v1": "u1", "v2": "u2", "v3": "u4"}
+    assert ged.ged(g1, g2, g12, g21)[0] == 4
