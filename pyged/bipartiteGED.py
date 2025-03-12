@@ -47,36 +47,6 @@ def compute_bipartite_cost_matrix(
     return C
 
 
-#  _____ ___  ____   ___  
-# |_   _/ _ \|  _ \ / _ \ 
-#   | || | | | | | | | | |
-#   | || |_| | |_| | |_| |
-#   |_| \___/|____/ \___/ 
-# TODO Retirer cette fonction
-def get_optimal_mapping(
-        C: np.ndarray,
-        lsap_solver: Solver = SolverLSAP()
-    ) -> Tuple[np.ndarray, np.ndarray]:
-    """Compute an optimal linear mapping according to cost Matrix C
-
-    Parameters
-    ----------
-    C : np.ndarray
-        The cost matrix for the LSAP
-    lsap_solver : Solver
-        Solves the LSAP given a cost matrix
-
-    Returns
-    -------
-    rho, varrho: np.ndarray
-        `numpy` arrays for columns and lines mapping indices
-
-    TODO inclure les progs C de Seb
-    """
-    rho, varrho = lsap_solver.solve(C)
-    return rho, varrho
-
-
 def convert_mapping(
         rho: Iterable[int],
         varrho: Iterable[int],

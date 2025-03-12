@@ -48,24 +48,6 @@ class TestComputeBipartiteCostMatrix:
         cm = bpged.compute_bipartite_cost_matrix(self.g1, self.g2, ncf)
         assert np.array_equal(cm, true_cm, equal_nan=True)
 
-class TestGetOptimalMapping:
-    """Tests for solver output"""
-
-    def test_constant_cost_function_solution(self):
-        cm = constant_cost_matrix()
-        rows_res, cols_res = bpged.get_optimal_mapping(cm)
-        assert np.sum(cm[rows_res, cols_res]) == 2
-
-    def test_riesen_cost_function_solution(self):
-        cm = riesen_cost_matrix()
-        rows_res, cols_res = bpged.get_optimal_mapping(cm)
-        assert np.sum(cm[rows_res, cols_res]) == 6
-
-    def test_neighborhood_cost_function_solution(self):
-        cm = neighborhood_cost_matrix()
-        rows_res, cols_res = bpged.get_optimal_mapping(cm)
-        assert np.sum(cm[rows_res, cols_res]) == 9
-
 def test_convert_mapping():
     g1, g2 = load_test_graphs()
     cols = np.array([0, 1, 2, 3, 4, 5, 6])

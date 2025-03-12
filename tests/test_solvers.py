@@ -2,28 +2,29 @@
 Test for LSAP Solvers
 """
 
-import sys
-from unittest.mock import MagicMock
-
-
-for lib in ("torch", "librariesImport", "gedlibpy", "sinkdiff.sinkdiff", "sinkdiff.sink_utils"):
-    sys.modules[lib] = MagicMock()
-
 import pytest
 np = pytest.importorskip("numpy")
 
+from test_utils import *
 from pyged.solvers import SolverLSAP
 
-def test_solver_lsap():
-    C = np.array([
-        [2, 1, 1, 1, np.inf, np.inf, np.inf],
-        [1, 0, 0, np.inf, 1, np.inf, np.inf],
-        [2, 1, 1, np.inf, np.inf, 1, np.inf],
-        [0, 1, 1, np.inf, np.inf, np.inf, 1],
-        [1, np.inf, np.inf, 0, 0, 0, 0],
-        [np.inf, 1, np.inf, 0, 0, 0, 0],
-        [np.inf, np.inf, 1, 0, 0, 0, 0]
-    ])
-    solver = SolverLSAP()
-    rows, cols = solver.solve(C)
-    assert np.sum(C[rows, cols]) == 2
+class TestSolver:
+    """Tests for solver output"""
+
+    def setup_method(self):
+        self.solver = SolverLSAP()
+
+    def test_constant_cost_function_solution(self):
+        cm = constant_cost_matrix()
+        rows_res, cols_res = self.solver.solve(cm)
+        assert np.sum(cm[rows_res, cols_res]) == 2
+
+    def test_riesen_cost_function_solution(self):
+        cm = riesen_cost_matrix()
+        rows_res, cols_res = self.solver.solve(cm)
+        assert np.sum(cm[rows_res, cols_res]) == 6
+
+    def test_neighborhood_cost_function_solution(self):
+        cm = neighborhood_cost_matrix()
+        rows_res, cols_res = self.solver.solve(cm)
+        assert np.sum(cm[rows_res, cols_res]) == 9
