@@ -40,28 +40,6 @@ class Solver(Protocol):
         ...
 
 
-def convert_matrix_to_LSAPE(C: np.array) -> np.array:
-    """
-    convert a n+m \times n+m matrix to a n+1 \times m+1 matrix
-
-    Parameters
-    ------------
-    C : np.array
-
-    Returns
-    -----------
-    X:np.array
-    """
-    n = np.argmax(C[:, 0])-1  # on detecte le premier inf
-    m = np.argmax(C[0, :])-1
-    insertions = np.diag(C[n:, :m])
-    deletions = np.diag(C[:n, m:])
-
-    lsape_cost_matrix = np.block([[C[:n, :m], deletions.reshape(-1, 1)],
-                                 [insertions.reshape(1, -1), C[-1, -1]]])
-    return lsape_cost_matrix
-
-
 class SolverLSAP():
     """LSAP Solver
     
@@ -73,7 +51,7 @@ class SolverLSAP():
 
     def solve(self, C: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Solves the LSAP
+        Solves the LSAP using the Hungarian Algorithm from `scipy` [1]_.
 
         Parameters
         ----------
@@ -87,9 +65,37 @@ class SolverLSAP():
             Optimal matching
             `rho[i]` is the matched index from the second set
             `varrho[i]` is the matched index from the first set
+        
+        References
+        ----------
+        .. [1] The SciPy Community, Documentation,
+           scipy.optimize.linear_sum_assignment,
+           https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
         """
         row_ind, col_ind = linear_sum_assignment(C)
         return row_ind, col_ind
+
+
+# def convert_matrix_to_LSAPE(C: np.array) -> np.array:
+#     """
+#     convert a n+m \times n+m matrix to a n+1 \times m+1 matrix
+
+#     Parameters
+#     ------------
+#     C : np.array
+
+#     Returns
+#     -----------
+#     X:np.array
+#     """
+#     n = np.argmax(C[:, 0])-1  # on detecte le premier inf
+#     m = np.argmax(C[0, :])-1
+#     insertions = np.diag(C[n:, :m])
+#     deletions = np.diag(C[:n, m:])
+
+#     lsape_cost_matrix = np.block([[C[:n, :m], deletions.reshape(-1, 1)],
+#                                  [insertions.reshape(1, -1), C[-1, -1]]])
+#     return lsape_cost_matrix
 
 
 # class SolverLSAPE():

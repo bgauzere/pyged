@@ -67,6 +67,16 @@ class GED():
             the Graph Edit Distance Upper Bound
         rho, barrho : dictionnaries of nodes (Any) to nodes (Any)
             result of the matching between nodes
+
+        Examples
+        --------
+        >>> import networkx as nx
+        >>> import pyged
+        >>> g1 = nx.complete_graph(5)
+        >>> g2 = nx.complete_graph(6)
+        >>> ged = pyged.ged.GED(pyged.costfunctions.ConstantCostFunction(1, 1, 1, 1))
+        >>> ged.ged(g1, g2)[0]
+        6
         """
         # TODO : à sortir
         if ((rho is None) or (varrho is None)):
