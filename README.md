@@ -1,10 +1,10 @@
 # PyGED
 
 ![Static Badge](https://img.shields.io/badge/PyGED-2.0-green?style=plastic)
-![Static Badge](https://img.shields.io/badge/Python-3.10|3.11|3.12|3.13+-yellow?style=plastic&logo=python&logoColor=3776AB&link=https%3A%2F%2Fwww.python.org%2F)
-![Static Badge](https://img.shields.io/badge/NetworkX-3.0+-blue?style=plastic&logo=networkx&logoColor=blue&link=https://networkx.org/)
-![Static Badge](https://img.shields.io/badge/Numpy-2.0+-blue?style=plastic&logo=numpy&logoColor=013243&link=https://numpy.org/)
-![Static Badge](https://img.shields.io/badge/Scipy-1.4+-blue?style=plastic&logo=scipy&logoColor=8CAA6&link=https://scipy.org/)
+[![Static Badge](https://img.shields.io/badge/Python-3.10|3.11|3.12|3.13+-yellow?style=plastic&logo=python&logoColor=3776AB)](https%3A%2F%2Fwww.python.org%2F)
+[![Static Badge](https://img.shields.io/badge/NetworkX-3.0+-blue?style=plastic&logo=networkx&logoColor=blue)](https://networkx.org/)
+[![Static Badge](https://img.shields.io/badge/Numpy-2.0+-blue?style=plastic&logo=numpy&logoColor=013243)](https://numpy.org/)
+[![Static Badge](https://img.shields.io/badge/Scipy-1.4+-blue?style=plastic&logo=scipy&logoColor=8CAA6)](https://scipy.org/)
 
 `PyGED` is a python package allowing to compute an upper bound
 of the **Graph Edit Distance** (*GED*).
