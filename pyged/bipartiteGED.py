@@ -6,7 +6,6 @@ from typing import Tuple, Dict, Any, Iterable
 import numpy as np
 import networkx as nx
 from pyged.costfunctions import CostFunction, ConstantCostFunction
-from pyged.solvers import Solver, SolverLSAP
 
 
 def compute_bipartite_cost_matrix(
