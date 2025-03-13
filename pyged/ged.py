@@ -15,7 +15,20 @@ from pyged.solvers import Solver, SolverLSAP
 class GED():
     """Graph Edit Distance class
     
-    Computes the GED of 2 grahs given a cost fucntion ans a LSAP solver
+    Computes an upper bound of the GED between 2 graphs given a cost function.
+
+    This algorithm is based on 
+    *Structural Pattern Recognition with Graph Edit Distance* [1]_.
+
+    References
+    ----------
+    .. [1] K. Riesen, Structural Pattern Recognition with
+       Graph Edit Distance, Switzerland, Springer, 2015
+
+    See Also
+    --------
+    pyged.costfunctions
+    pyged.solvers
     """
 
     def __init__(
