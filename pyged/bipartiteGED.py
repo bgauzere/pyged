@@ -22,6 +22,8 @@ def compute_bipartite_cost_matrix(
         Graphs between which the GED is calculated
     cf : CostFunction
         Cost function to build the cost matrix
+        By default, uses a `ConstantCostFunction` with costs of
+        1 for substitution and 3 for insertion/deletion
     
     Returns
     -------
