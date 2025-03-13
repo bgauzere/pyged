@@ -10,7 +10,7 @@ This bipartite *GED* approximation algorithm is based on
 
 It uses a node matching between the graphs to
 approximate the *GED*, by solving a Linear Sum
-Assignment Problem instead (*LSAP*) of a
+Assignment Problem (*LSAP*) instead of a
 Quadratic Assignment Problem.
 
 A *LSAP* can be solved by using a cost matrix
