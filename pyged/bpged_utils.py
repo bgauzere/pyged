@@ -78,6 +78,8 @@ def compute_bipartite_cost_matrix(
     Examples
     --------
     >>> import networkx as nx
+    >>> from pyged.costfunctions import ConstantCostFunction
+    >>> from pyged.bpged_utils import compute_bipartite_cost_matrix
     >>> # We create the graphs from SolverLSAP example
     >>> g1, g2 = nx.Graph(), nx.Graph()
     >>> g1.add_nodes_from(
@@ -90,9 +92,9 @@ def compute_bipartite_cost_matrix(
     >>> def compare_nodes(u, v, g1, g2):
     ...     return g1.nodes[u]["Label"] == g2.nodes[v]["Label"]
     >>> # We create the cost function used to build the cost matrix
-    >>> cf = nx.bipartite_ged.ConstantCostFunction(1, 2, 1, 2, compare_nodes)
+    >>> cf = ConstantCostFunction(1, 2, 1, 2, compare_nodes)
     >>> # And we can compute the cost matrix :
-    >>> nx.bipartite_ged.compute_bipartite_cost_matrix(g1, g2, cf)
+    >>> compute_bipartite_cost_matrix(g1, g2, cf)
     array([[ 0.,  1.,  2., inf, inf],
            [ 1.,  0., inf,  2., inf],
            [ 0.,  1., inf, inf,  2.],
@@ -178,6 +180,9 @@ def convert_mapping(
     Examples
     --------
     >>> import networkx as nx
+    >>> from pyged.costfunctions import ConstantCostFunction
+    >>> from pyged.bpged_utils import *
+    >>> from pyged.solvers import SolverLSAP
     >>> # We create the graph from SolverLSAP example
     >>> g1, g2 = nx.Graph(), nx.Graph()
     >>> g1.add_nodes_from(
@@ -190,13 +195,13 @@ def convert_mapping(
     >>> def compare_nodes(u, v, g1, g2):
     ...     return g1.nodes[u]["Label"] == g2.nodes[v]["Label"]
     >>> # The cost matrix :
-    >>> cf = nx.bipartite_ged.ConstantCostFunction(1, 2, 1, 2, compare_nodes)
-    >>> C = nx.bipartite_ged.compute_bipartite_cost_matrix(g1, g2, cf)
+    >>> cf = ConstantCostFunction(1, 2, 1, 2, compare_nodes)
+    >>> C = compute_bipartite_cost_matrix(g1, g2, cf)
     >>> # And the optimum node matching :
-    >>> solver = nx.bipartite_ged.SolverLSAP()
+    >>> solver = SolverLSAP()
     >>> rho, varrho = solver.solve(C)
     >>> # Now we can convert it into dictionaries of nodes :
-    >>> nx.bipartite_ged.convert_mapping(rho, varrho, g1, g2)
+    >>> convert_mapping(rho, varrho, g1, g2)
     ({'u1': None, 'u2': 'v2', 'u3': 'v1'}, {'v2': 'u2', 'v1': 'u3'})
 
     We obtain the node mapping between `g1` and `g2`, in accordance

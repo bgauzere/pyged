@@ -297,9 +297,10 @@ class BipartiteGED:
         A simple use case :
 
         >>> import networkx as nx
+        >>> from pyged.bipartite_ged import BipartiteGED
         >>> g1 = nx.complete_graph(5)
         >>> g2 = nx.complete_graph(6)
-        >>> bpged = nx.BipartiteGED("const", 1, 1, 1, 1)
+        >>> bpged = BipartiteGED("const", 1, 1, 1, 1)
         >>> bpged.ged(g1, g2)
         21
 
@@ -327,7 +328,7 @@ class BipartiteGED:
         >>> def compare_edges(e1, e2, g1, g2):
         ...     return g1[e1[0]][e1[1]]["weight"] == g2[e2[0]][e2[1]]["weight"]
         >>> # Now we can recreate our GED estimator and compute the approximation :
-        >>> bpged = nx.BipartiteGED("const", 1, 1, 1, 1, compare_nodes, compare_edges)
+        >>> bpged = BipartiteGED("const", 1, 1, 1, 1, compare_nodes, compare_edges)
         >>> bpged.ged(g1, g2)
         3
 

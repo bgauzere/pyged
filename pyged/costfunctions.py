@@ -207,6 +207,7 @@ class ConstantCostFunction:
         Examples
         --------
         >>> import networkx as nx
+        >>> import pyged.costfunctions as cf
         >>> # We define first the labelled example graphs
         >>> g1, g2 = nx.Graph(), nx.Graph()
         >>> g1.add_nodes_from(
@@ -234,7 +235,7 @@ class ConstantCostFunction:
         >>> # Finally, we create our cost function
         >>> # We use here cost of 1 for any substitution, and a cost of 2
         >>> # for any insertion and deletion (for both nodes and edges)
-        >>> cf = nx.bipartite_ged.ConstantCostFunction(
+        >>> cf = cf.ConstantCostFunction(
         ...     1, 2, 1, 2, compare_nodes, compare_edges
         ... )
         >>>
@@ -412,6 +413,7 @@ class RiesenCostFunction:
         and the same comparison functions and the `ConstantCostFunction` we created :
 
         >>> import networkx as nx
+        >>> import pyged.costfunctions as cf
         >>> # We take back the ConstantCostFunction example
         >>> g1, g2 = nx.Graph(), nx.Graph()
         >>> g1.add_nodes_from(
@@ -436,13 +438,13 @@ class RiesenCostFunction:
         >>> def compare_edges(e1, e2, g1, g2):
         ...     return g1[e1[0]][e1[1]]["weight"] == g2[e2[0]][e2[1]]["weight"]
         >>>
-        >>> cf = nx.bipartite_ged.ConstantCostFunction(
+        >>> cf = cf.ConstantCostFunction(
         ...     1, 2, 1, 2, compare_nodes, compare_edges
         ... )
         >>>
         >>> # We define the improved cost function
         >>> # using the ConstantCostFunction cf
-        >>> rcf = nx.bipartite_ged.RiesenCostFunction(cf)
+        >>> rcf = cf.RiesenCostFunction(cf)
         >>> # The substitution cost is not 0 anymore as
         >>> # the adjacent edges are not the same
         >>> rcf.cns("u1", "v1", g1, g2)
@@ -699,13 +701,13 @@ class NeighborhoodCostFunction:
         >>> def compare_edges(e1, e2, g1, g2):
         ...     return g1[e1[0]][e1[1]]["weight"] == g2[e2[0]][e2[1]]["weight"]
         >>>
-        >>> cf = nx.bipartite_ged.ConstantCostFunction(
+        >>> cf = cf.ConstantCostFunction(
         ...     1, 2, 1, 2, compare_nodes, compare_edges
         ... )
         >>>
         >>> # We define the improved cost function
         >>> # using the ConstantCostFunction cf
-        >>> ncf = nx.bipartite_ged.NeighborhoodCostFunction(cf)
+        >>> ncf = cf.NeighborhoodCostFunction(cf)
         >>> # Unlike the RiesenCostFunction, as the neighbors
         >>> # are not similar, the cost is not 0
         >>> ncf.cns("u2", "v2", g1, g2)
