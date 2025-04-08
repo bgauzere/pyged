@@ -28,8 +28,7 @@ class BipartiteGED:
     by using the name of the cost function or solver and
     providing it other optional parameters.
 
-    It can also be configured using the built-in classes,
-    available in the :mod:`networkx.algorithms.bipartite_ged` module.
+    It can also be configured using the built-in classes.
 
     And it can be given custom cost function or solver classes
     to test new parameters or improve the approximation.
@@ -165,8 +164,8 @@ class BipartiteGED:
         See also
         --------
 
-        networkx.algorithms.bipartite_ged.costfunctions : some cost function classes
-        networkx.algorithms.bipartite_ged.solvers : some solver classes
+        pyged.costfunctions : some cost function classes
+        pyged.solvers : some solver classes
 
         Notes
         -----
