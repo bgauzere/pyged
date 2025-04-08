@@ -77,5 +77,5 @@ networkx.graph_edit_distance
 
 from pyged.costfunctions import *
 from pyged.solvers import *
-from pyged.bipartiteGED import *
-from pyged.ged import *
+from pyged.bpged_utils import *
+from pyged.bipartite_ged import *
