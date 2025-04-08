@@ -133,36 +133,93 @@ def compute_bipartite_cost_matrix(
 
 
 def convert_mapping(
-        rho: Iterable[int],
-        varrho: Iterable[int],
-        g1: nx.Graph,
-        g2: nx.Graph
-    ) -> Tuple[Dict[Any, Any], Dict[Any, Any]]:
-    """Convert a mapping from nodes index (int) to a mapping
-    between nodes id (real node identifier in networkx)
+    rho: Iterable[int], varrho: Iterable[int], g1: nx.Graph, g2: nx.Graph
+) -> tuple:
+    """Convert a mapping from node indices (int) to a mapping
+    between nodes IDs (real node identifier in networkx)
+
+    Using the matching found by solving the *LSAP*, creates
+    two dictionaries of nodes, to map each node of the
+    graphs with its assigned node of the other graph.
+
+    The mapping is symmetric. If we have node `u` from `g1`
+    mapped in the first dict to the node `v` in `g2`, then
+    the node `v` in the second dict will be mapped to `u`.
+
+    In the case of node deletion, the mapping will only
+    appear in the first dict, with the node mapped to `None`.
+    In the case of node insertion, the mapping will only
+    appear in the second dict, with the node mapped to `None`.
+    Apart from these cases, only existing nodes are considered
+    (ie, the case of two matched empty nodes is ignored).
 
     Parameters
     ----------
-    rho, varrho : Iterable of ints
-        Lists of indices, results of nodes mapping
-        for each node of index i in g1, rho[i] if
-        the index of matched node in g2
-        varrho is the reversed list
-    g1_to_g2, g2_to_g1 : networkx.Graph
-        Graphs between which we map the nodes
+    rho, varrho: Iterable of ints
+        Lists of indices representing the results of nodes matching.
+
+        For each node of index `i` in `g1`, `rho[i]`
+        is the index of matched node in `g2`.
+        `varrho` is the reversed mapping
+    g1, g2: networkx.Graph
+        Graphs between which the node index matching
+        is converted into a ID node mapping
 
     Returns
     -------
-    rho, varrho : dictionnaries of nodes (Any) to nodes (Any)
-        converted result of the mapping into dicts
+    g1_to_g2, g2_to_g1 : dictionaries of nodes to nodes
+        Converted mapping into dicts
+
+    Raises
+    ------
+    ValueError
+        If the lists of indices `rho` and `varrho` are not of the same size
+
+    Examples
+    --------
+    >>> import networkx as nx
+    >>> # We create the graph from SolverLSAP example
+    >>> g1, g2 = nx.Graph(), nx.Graph()
+    >>> g1.add_nodes_from(
+    ...     [("u1", {"Label": 1}), ("u2", {"Label": 2}), ("u3", {"Label": 1})]
+    ... )
+    >>> g1.add_edges_from([("u1", "u2"), ("u2", "u3")])
+    >>> g2.add_nodes_from([("v1", {"Label": 1}), ("v2", {"Label": 2})])
+    >>> g2.add_edge("v1", "v2")
+    >>> # The node comparison function :
+    >>> def compare_nodes(u, v, g1, g2):
+    ...     return g1.nodes[u]["Label"] == g2.nodes[v]["Label"]
+    >>> # The cost matrix :
+    >>> cf = nx.bipartite_ged.ConstantCostFunction(1, 2, 1, 2, compare_nodes)
+    >>> C = nx.bipartite_ged.compute_bipartite_cost_matrix(g1, g2, cf)
+    >>> # And the optimum node matching :
+    >>> solver = nx.bipartite_ged.SolverLSAP()
+    >>> rho, varrho = solver.solve(C)
+    >>> # Now we can convert it into dictionaries of nodes :
+    >>> nx.bipartite_ged.convert_mapping(rho, varrho, g1, g2)
+    ({'u1': None, 'u2': 'v2', 'u3': 'v1'}, {'v2': 'u2', 'v1': 'u3'})
+
+    We obtain the node mapping between `g1` and `g2`, in accordance
+    with the solution found in the :class:`.SolverLSAP` example.
+
+    See Also
+    --------
+    :mod:`.solvers` : More information about the *LSAP* solution
     """
-    assert len(rho) == len(varrho)
+    if len(rho) != len(varrho):
+        raise ValueError(
+            f"Parameters `rho` and `varrho` must be of the same length ({len(rho)} != {len(varrho)})"
+        )
     nodes1, nodes2 = list(g1.nodes()), list(g2.nodes())
     g1_to_g2, g2_to_g1 = {}, {}
     for g1_index, g2_index in zip(rho, varrho):
         if g1_index < len(nodes1):
-            g1_to_g2[nodes1[g1_index]] = nodes2[g2_index] if g2_index < len(nodes2) else None
+            g1_to_g2[nodes1[g1_index]] = (
+                nodes2[g2_index] if g2_index < len(nodes2) else None
+            )
         if g2_index < len(nodes2):
-            g2_to_g1[nodes2[g2_index]] = nodes1[g1_index] if g1_index < len(nodes1) else None
+            g2_to_g1[nodes2[g2_index]] = (
+                nodes1[g1_index] if g1_index < len(nodes1) else None
+            )
     return g1_to_g2, g2_to_g1
 
