@@ -8,8 +8,8 @@ np = pytest.importorskip("numpy")
 from test_utils import *
 from pyged.solvers import SolverLSAP
 
-class TestSolver:
-    """Tests for solver output"""
+class TestSolverLSAP:
+    """Tests for `SolverLSAP` output"""
 
     def setup_method(self):
         self.solver = SolverLSAP()

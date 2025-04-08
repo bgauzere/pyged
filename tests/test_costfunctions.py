@@ -3,22 +3,15 @@ Tests for module `costfunctions`
 """
 
 import networkx as nx
-import pyged.costfunctions as cf
+from pyged.costfunctions import *
 from tests.test_utils import *
 
 class TestConstantCostFunction:
-    """Tests for `pyged.costfunctions.ConstantCostFunction`"""
+    """Tests for `ConstantCostFunction`"""
 
     def setup_method(self):
         self.g1, self.g2 = load_test_graphs()
-        self.cf = cf.ConstantCostFunction(
-            1,
-            1,
-            1,
-            1,
-            comp_nodes,
-            comp_edges
-        )
+        self.cf = ConstantCostFunction(1, 1, 1, 1, comp_nodes, comp_edges)
 
     def test_cni(self):
         assert self.cf.cni("v1", self.g2) == 1
@@ -44,19 +37,15 @@ class TestConstantCostFunction:
     def test_ces_same(self):
         assert self.cf.ces(("u3", "u4"), ("v1", "v2"), self.g1, self.g2) == 0
 
+
 class TestRiesenCostFunction:
-    """Tests for `pyged.costfunctions.RiesenCostFunction`"""
+    """Tests for `RiesenCostFunction`"""
 
     def setup_method(self):
         self.g1, self.g2 = load_test_graphs()
-        self.cf = cf.RiesenCostFunction(cf.ConstantCostFunction(
-            1,
-            1,
-            1,
-            1,
-            comp_nodes,
-            comp_edges
-        ))
+        self.cf = RiesenCostFunction(
+            ConstantCostFunction(1, 1, 1, 1, comp_nodes, comp_edges)
+        )
 
     def test_cni(self):
         assert self.cf.cni("v1", self.g2) == 2
@@ -82,19 +71,15 @@ class TestRiesenCostFunction:
     def test_ces_same(self):
         assert self.cf.ces(("u3", "u4"), ("v1", "v2"), self.g1, self.g2) == 0
 
+
 class TestNeighborhoodCostFunction:
-    """Tests for `pyged.costfunctions.NeighborhoodCostFunction`"""
+    """Tests for `NeighborhoodCostFunction`"""
 
     def setup_method(self):
         self.g1, self.g2 = load_test_graphs()
-        self.cf = cf.NeighborhoodCostFunction(cf.ConstantCostFunction(
-            1,
-            1,
-            1,
-            1,
-            comp_nodes,
-            comp_edges
-        ))
+        self.cf = NeighborhoodCostFunction(
+            ConstantCostFunction(1, 1, 1, 1, comp_nodes, comp_edges)
+        )
 
     def test_cni(self):
         assert self.cf.cni("v1", self.g2) == 2
