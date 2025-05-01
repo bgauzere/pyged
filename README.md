@@ -47,15 +47,29 @@ or by using the `pipenv` to setup an environment
 
 ## Content
 
-This implementation offers 3 differents ways to parametrize the approximation of the *GED*, which are 3 cost functions valuating edit operations :
+This implementation offers different ways to parametrize the approximation of the *GED* :
 
-* `ConstantCostFunction`
-* `RiesenCostFunction`
-* `NeighborhoodCostFunction`
+### Cost functions
 
-These edit cost functions are used to build the cost matrix, in order to solve the *LSAP*, which will minimize the assignment cost (ie in our case, the edit cost)
+Cost functions are used to compute the cost matrix and find an optimum node matching. They are used both as assignment cost and edit cost. The goal is to solve a *LSAP* and minimize the total matching cost.
 
-But to create a better matching, more complex cost functions can be used, that will be able to retrieve local structural data, hence improving the node matching thanks to comparisons between neighborhoods informations.
+| CostFunction             | Characteristics            | Runnung time |
+|--------------------------|----------------------------|--------------|
+| ConstantCostFunction     | Constant costs             | Fast         |
+| RiesenCostFunction       | Adjacent edges             | Slow         |
+| NeighborhoodCostFunction | Adjacent edges & neighbors | Very slow    |
+
+The `ConstantCostFunction` is an elementary cost function. The cost for edit operations are constant, except for the substitution cost that can be null if the nodes (or edges) are equivalent.
+
+The other cost functions are more complex and gather local structure information to improve the matching result : they increase the edit cost for nodes that should not be matched.
+
+### Solvers
+
+The solvers are used to find an optimum node assignment between the graphs, and solve the *LSAP*.
+
+| Solver     | Characteristics            | Complexity |
+|------------|----------------------------|------------|
+| SolverLSAP | Jonker-Volgenant algorithm | Polynomial |
 
 ## Small examples
 
