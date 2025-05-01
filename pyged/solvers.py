@@ -1,87 +1,221 @@
-import torch
+"""
+Classes solving a Linear Sum Assignment Problem (*LSAP*)
+
+Solving a *LSAP* allows to compute an optimum assignment
+of each element from the two sets $A$ and $B$,
+given a cost matrix $C$ where $C_{i, j}$ represents
+the matching cost between $a_i \in A$ and $b_j \in B$
+
+Sets $A$ and $B$ must have the same size ($|A| = |B| = n$).
+Let $\{ \phi_1, \dots, \phi_{n} \}$ be the solution
+of the *LSAP* where element $a_i$ is matched with the
+element $b_{\phi_i}$. This solution minimizes the
+matching cost $\sum_{i = 1}^n C_{i, \phi_i}$
+"""
+
 from typing import Protocol
-from scipy.optimize import linear_sum_assignment
+
 import numpy as np
-import librariesImport
-import gedlibpy
-from sinkdiff.sinkdiff import sinkhorn_d1d2
-from sinkdiff.sink_utils import cost_to_sim
+import scipy as sp
 
 
 class Solver(Protocol):
-    def solve(self, cost_matrix: np.array) -> tuple[np.array, np.array]:
-        """Compute optimal assignment between two sets where matching costs are encoded into cost_matrix
+    """`Solver` Protocol
+
+    Designs the optimum matching solver classes.
+
+    Any custom solver must implement the `solve` method.
+    """
+
+    def solve(self, cost_matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Compute optimum assignment between two sets where
+        `cost_matrix` encodes the assignment costs : `cost_matrix[i, j]`
+        contains the assignment cost between element of index `i` in $A$
+        and element of index `j` in $B$.
 
         Parameters
         ----------
         cost_matrix : np.array
-            The n \times m matrix between the two sets
+            The $n * n$ matching cost matrix between the two sets
 
         Returns
-        --------
+        -------
         rho, varrho : np.array
-        rho[i] indicates the mapping of i onto second set
-        varrho[j] indicates the mapping of j onto first set (inverse of rho)
+            `rho[i]` indicates the index in the second set of the element assigned to `i`
+
+            `varrho[j]` indicates the index in the first set
+            of the element assigned to `j` (inverse of rho)
+
+        Notes
+        -----
+        `cost_matrix` must be a square matrix. Hence to ensure the full
+        matching in the case of two graphs with different number of nodes,
+        empty nodes are added to the matrix. The output arrays will then
+        contain indices of nodes that do not exist in the graphs.
+        Assume indices $i$ and $j$ are matched :
+
+        * if they both exist in their graphs, it repretents a substitution
+        * if only $i$ exists, it represents a deletion
+        * if only $j$ exists, it represents an insertion
+
+        If neither of them exist in the graphs, it can be ignored, it does
+        not represent any edit operation and is the consequnce of
+        the way the assignment cost matrix is built.
+
+        See Also
+        --------
+        :func:`.compute_bipartite_cost_matrix` : More informations on the assignment cost matrix
+        :func:`.convert_mapping` : A function to convert the *LSAP* solution into a node mapping
         """
         ...
 
 
-def convert_matrix_to_LSAPE(C: np.array) -> np.array:
+class SolverLSAP:
+    """LSAP Solver
+
+    Solves a Linear Sum Assignment Problem between
+    two sets given an assignment cost matrix.
     """
-    convert a n+m \times n+m matrix to a n+1 \times m+1 matrix
 
-    Parameters
-    ------------
-    C : np.array
-
-    Returns
-    -----------
-    X:np.array
-    """
-    n = np.argmax(C[:, 0])-1  # on detecte le premier inf
-    m = np.argmax(C[0, :])-1
-    insertions = np.diag(C[n:, :m])
-    deletions = np.diag(C[:n, m:])
-
-    lsape_cost_matrix = np.block([[C[:n, :m], deletions.reshape(-1, 1)],
-                                 [insertions.reshape(1, -1), C[-1, -1]]])
-    return lsape_cost_matrix
-
-
-class SolverLSAP():
     def __init__(self):
         pass
 
-    def solve(self, C):
-        row_ind, col_ind = linear_sum_assignment(C)
-        return col_ind, row_ind[np.argsort(col_ind)]
+    def solve(self, C: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Solves the LSAP using the Jonker-Volgenant Algorithm from `scipy` [1]_.
 
+        Compute optimum assignment between two sets where
+        `cost_matrix` encodes the assignment costs : `cost_matrix[i, j]`
+        contains the assignment cost between element of index `i` in $A$
+        and element of index `j` in $B$.
 
-class SolverLSAPE():
-    def solve(self, C):
-        C_lsape = convert_matrix_to_LSAPE(C)
-        result = gedlibpy.hungarian_LSAPE(C_lsape)
-        # TODO : traiter le retour de result
-        rho = np.array([int(i) for i in result[0]])
-        varrho = np.array([int(i) for i in result[1]])
-        return rho, varrho
+        Parameters
+        ----------
+        cost_matrix : np.array
+            The $n * n$ matching cost matrix between the two sets
 
+        Returns
+        -------
+        rho, varrho : np.array
+            `rho[i]` indicates the index in the second set of the element assigned to `i`
 
-class SolverSinkhorn():
-    def __init__(self, nb_iter=100, eps=1e-2):
+            `varrho[j]` indicates the index in the first set
+            of the element assigned to `j` (inverse of rho)
+
+        Examples
+        --------
+        In this example, we use the :func:`.compute_bipartite_cost_matrix`
+        function. We create 2 graphs of 3 and 2 nodes. The cost
+        matrix will be a (2 + 3) * (2 + 3) matrix, and the solutions
+        will be two `numpy` arrays of size (2 + 3).
+
+        >>> import networkx as nx
+        >>> from pyged.costfunctions import ConstantCostFunction
+        >>> from pyged.bpged_utils import compute_bipartite_cost_matrix
+        >>> from pyged.solvers import SolverLSAP
+        >>> # We create two very simple graphs
+        >>> g1, g2 = nx.Graph(), nx.Graph()
+        >>> g1.add_nodes_from(
+        ...     [("u1", {"Label": 1}), ("u2", {"Label": 2}), ("u3", {"Label": 1})]
+        ... )
+        >>> g1.add_edges_from([("u1", "u2"), ("u2", "u3")])
+        >>> g2.add_nodes_from([("v1", {"Label": 1}), ("v2", {"Label": 2})])
+        >>> g2.add_edge("v1", "v2")
+        >>> # And we define the function for nodes comparison
+        >>> def compare_nodes(u, v, g1, g2):
+        ...     return g1.nodes[u]["Label"] == g2.nodes[v]["Label"]
+        >>> # We compute the cost matrix using a cost function :
+        >>> cf = ConstantCostFunction(1, 2, 1, 2, compare_nodes)
+        >>> C = compute_bipartite_cost_matrix(g1, g2, cf)
+        >>> # And we use it along with the solver to find an optimum node matching :
+        >>> solver = SolverLSAP()
+        >>> solver.solve(C)
+        (array([0, 1, 2, 3, 4]), array([2, 1, 0, 3, 4]))
+
+        The first array corresponds to the indices of the rows of the cost matrix
+        (ie, the indices of the nodes from `g1`). The second array contains the
+        matched indices of the columns (ie, the indices of the nodes from `g2`).
+
+        For instance, we see that indices 2 and 0 are matched, which means
+        node of index 2 from `g1` (`u3`) is matched with node of index 0 from
+        `g2` (`v1`). We also see that nodes of indices 0 and 2 are matched,
+        but there is no node of index 2 in `g2`. It represents the deletion
+        of the node of index 0 from `g1` (`u1`).
+
+        Notes
+        -----
+        `cost_matrix` must be a square matrix. Hence to ensure the full
+        matching in the case of two graphs with different number of nodes,
+        empty nodes are added to the matrix. The output arrays will then
+        contain indices of nodes that do not exist in the graphs.
+        Assume indices $i$ and $j$ are matched :
+
+        * if they both exist in their graphs, it repretents a substitution
+        * if only $i$ exists, it represents a deletion
+        * if only $j$ exists, it represents an insertion
+
+        If neither of them exist in the graphs, it can be ignored, it does
+        not represent any edit operation and is the consequnce of
+        the way the assignment cost matrix is built.
+
+        See Also
+        --------
+        :func:`.compute_bipartite_cost_matrix` : More informations on the assignment cost matrix
+        :func:`.convert_mapping` : A function to convert the *LSAP* solution into a node mapping
+
+        References
+        ----------
+        .. [1] The SciPy Community, Documentation,
+           scipy.optimize.linear_sum_assignment,
+           https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.linear_sum_assignment.html
         """
+        row_ind, col_ind = sp.optimize.linear_sum_assignment(C)
+        return row_ind, col_ind
 
-        """
-        self.nb_iter = nb_iter
-        self.eps = eps
 
-    def solve(self, C):
-        C_lsape = convert_matrix_to_LSAPE(C)
-        S = cost_to_sim(torch.from_numpy(C_lsape).float())
-        X, _ = sinkhorn_d1d2(S, self.nb_iter, self.eps)
+# def convert_matrix_to_LSAPE(C: np.array) -> np.array:
+#     """
+#     convert a n+m \times n+m matrix to a n+1 \times m+1 matrix
 
-        # on inverse pour binariser la matrice
-        results = gedlibpy.hungarian_LSAPE(X.max()-X)
-        rho = np.array([int(i) for i in results[0]])
-        varrho = np.array([int(i) for i in results[1]])
-        return rho, varrho
+#     Parameters
+#     ------------
+#     C : np.array
+
+#     Returns
+#     -----------
+#     X:np.array
+#     """
+#     n = np.argmax(C[:, 0])-1  # on detecte le premier inf
+#     m = np.argmax(C[0, :])-1
+#     insertions = np.diag(C[n:, :m])
+#     deletions = np.diag(C[:n, m:])
+
+#     lsape_cost_matrix = np.block([[C[:n, :m], deletions.reshape(-1, 1)],
+#                                  [insertions.reshape(1, -1), C[-1, -1]]])
+#     return lsape_cost_matrix
+
+
+# class SolverLSAPE():
+#     def solve(self, C):
+#         C_lsape = convert_matrix_to_LSAPE(C)
+#         result = gedlibpy.hungarian_LSAPE(C_lsape)
+#         # TODO : traiter le retour de result
+#         rho = np.array([int(i) for i in result[0]])
+#         varrho = np.array([int(i) for i in result[1]])
+#         return rho, varrho
+
+
+# class SolverSinkhorn():
+#     def __init__(self, nb_iter=100, eps=1e-2):
+#         self.nb_iter = nb_iter
+#         self.eps = eps
+
+#     def solve(self, C):
+#         C_lsape = convert_matrix_to_LSAPE(C)
+#         S = cost_to_sim(torch.from_numpy(C_lsape).float())
+#         X, _ = sinkhorn_d1d2(S, self.nb_iter, self.eps)
+
+#         # on inverse pour binariser la matrice
+#         results = gedlibpy.hungarian_LSAPE(X.max()-X)
+#         rho = np.array([int(i) for i in results[0]])
+#         varrho = np.array([int(i) for i in results[1]])
+#         return rho, varrho

@@ -8,8 +8,9 @@ networkx = "*"
 matplotlib = "*"
 scipy = "*"
 numpy = "*"
+pytest = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = ">=3.10, <= 3.13"
