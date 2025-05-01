@@ -1,7 +1,9 @@
 """
 Graph Edit Distance module
 
-Defines a class computing GED between 2 graphs
+Defines a fully configurable class, able
+to approximate the Graph Edit Distance (*GED*)
+between two graphs by computing an upper bound.
 """
 
 from collections.abc import Callable
@@ -151,8 +153,7 @@ class BipartiteGED:
         A custom cost function should be based on an elementary :class:`.CostFunction`
         (eg :class:`.ConstantCostFunction`). As it aims to enhance the matching result
         by increasing some edit costs, using this cost function to compute the
-        approximation may result in an overastimated GED. Implementing a property
-        to access the elementary :class:`.CostFunction` helps avoid this.
+        approximation may result in an overastimated GED.
 
         Every built-in :class:`.CostFunction` is based on the :class:`.ConstantCostFunction`.
         If a custom cost function does not implement elementary costs, it
@@ -251,7 +252,7 @@ class BipartiteGED:
         """Approximate Graph Edit Distance between `g1` and `g2`.
 
         The calculation can be performed based on a provided mapping.
-        Otherwise, the mapping if computed using the different parameters.
+        Otherwise, the mapping is computed using the different parameters.
 
         Parameters
         ----------

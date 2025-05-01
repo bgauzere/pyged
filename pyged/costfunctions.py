@@ -471,9 +471,9 @@ class RiesenCostFunction:
         To improve the matching, this cost function takes the edit costs of
         adjacent edges into account to compute the node edit costs.
 
-        The matching costs for edges is based on the given `CostFunction`.
+        The assignment costs for edges is based on the given `CostFunction`.
         Hence, it is important for this given cost function to be able to
-        compare edges (eg, by using an edges comparison function).
+        compare edges (ie, by providing an edges comparison function).
         """
         self.cf_ = cf
         self.lsap_solver_ = (
@@ -727,9 +727,9 @@ class NeighborhoodCostFunction:
         In the same way `RiesenCostFunction` does, this cost function improves the matching by
         taking adjacent edges and neighbors edit costs into account to compute the node edit costs.
 
-        The matching costs for edges is based on the given `CostFunction`.
+        The assignment costs for edges is based on the given `CostFunction`.
         Hence, it is important for this given cost function to be able to
-        compare edges (eg, by using an edges comparison function).
+        compare edges (ie, by providing an edges comparison function).
         """
         self.cf_ = cf
         self.lsap_solver_ = (
@@ -798,7 +798,7 @@ class NeighborhoodCostFunction:
         """Computes the deletion cost of `node_u` in `g1`.
 
         In the same way as `RiesenCostFunction`, the result is based on
-        the existing adjacent edges deletion costs, ad a node deletion
+        the existing adjacent edges deletion costs, as a node deletion
         causes its adjaccent edges to be deleted too.
         This deletion cost is provided by the given `CostFunction`.
 

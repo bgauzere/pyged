@@ -1,7 +1,7 @@
 """
 Classes solving a Linear Sum Assignment Problem (*LSAP*)
 
-Solving a *LSAP* allows to compute an optimum matching
+Solving a *LSAP* allows to compute an optimum assignment
 of each element from the two sets $A$ and $B$,
 given a cost matrix $C$ where $C_{i, j}$ represents
 the matching cost between $a_i \in A$ and $b_j \in B$
@@ -131,13 +131,15 @@ class SolverLSAP:
         >>> solver.solve(C)
         (array([0, 1, 2, 3, 4]), array([2, 1, 0, 3, 4]))
 
-        The first array corresponds to the indices of the rows of the cost
-        matrix. The second array contains the matched indices of the columns.
+        The first array corresponds to the indices of the rows of the cost matrix
+        (ie, the indices of the nodes from `g1`). The second array contains the
+        matched indices of the columns (ie, the indices of the nodes from `g2`).
 
         For instance, we see that indices 2 and 0 are matched, which means
         node of index 2 from `g1` (`u3`) is matched with node of index 0 from
         `g2` (`v1`). We also see that nodes of indices 0 and 2 are matched,
-        but there is no node of index 2 in `g2`. It represents a deletion.
+        but there is no node of index 2 in `g2`. It represents the deletion
+        of the node of index 0 from `g1` (`u1`).
 
         Notes
         -----

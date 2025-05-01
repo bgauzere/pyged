@@ -137,8 +137,8 @@ def compute_bipartite_cost_matrix(
 def convert_mapping(
     rho: Iterable[int], varrho: Iterable[int], g1: nx.Graph, g2: nx.Graph
 ) -> tuple:
-    """Convert a mapping from node indices (int) to a mapping
-    between nodes IDs (real node identifier in networkx)
+    """Converts a node indices assignment to a
+    node mapping using the networkx nodes IDs.
 
     Using the matching found by solving the *LSAP*, creates
     two dictionaries of nodes, to map each node of the
@@ -152,7 +152,7 @@ def convert_mapping(
     appear in the first dict, with the node mapped to `None`.
     In the case of node insertion, the mapping will only
     appear in the second dict, with the node mapped to `None`.
-    Apart from these cases, only existing nodes are considered
+    Aside from these cases, only existing nodes are considered
     (ie, the case of two matched empty nodes is ignored).
 
     Parameters
@@ -162,7 +162,7 @@ def convert_mapping(
 
         For each node of index `i` in `g1`, `rho[i]`
         is the index of matched node in `g2`.
-        `varrho` is the reversed mapping
+        `varrho` is the reversed matching
     g1, g2: networkx.Graph
         Graphs between which the node index matching
         is converted into a ID node mapping
